@@ -917,20 +917,3 @@ extension FunctionCallable {
     }
 }
 #endif // swift(>=5.5)
-
-extension User {
-    /**
-     Create a flexible sync configuration instance, which can be used to open a realm  which
-     supports flexible sync.
-
-     It won't be possible to combine flexible and partition sync in the same app, which means if you open
-     a realm with a flexible sync configuration, you won't be able to open a realm with a PBS configuration
-     and the other way around.
-
-     @return A `Realm.Configuration` instance with a flexible sync configuration.
-     */
-    public func flexibleSyncConfiguration() -> Realm.Configuration {
-        let config = self.__flexibleSyncConfiguration()
-        return ObjectiveCSupport.convert(object: config)
-    }
-}

@@ -25,6 +25,7 @@ enum LoggingViewState {
     case loggingIn
     case loggedIn
     case syncing
+    case flexibleSync
 }
 
 struct MainView: View {
@@ -65,6 +66,10 @@ struct MainView: View {
                         viewState = .syncing
                     }
                     .accessibilityIdentifier("sync_button")
+                    Button("Flexible Sync") {
+                        viewState = .flexibleSync
+                    }
+                    .accessibilityIdentifier("flexible_sync_button")
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .background(Color.yellow)
@@ -108,6 +113,25 @@ struct MainView: View {
                 default:
                     EmptyView()
                 }
+            case .flexibleSync:
+                if #available(macOS 12.0, *) {
+                    switch testType {
+                    case "flexible_sync_observed_query_results_state":
+                        ObservedQueryResultsStateView()
+                            .environment(\.realmConfiguration, user!.flexibleSyncConfiguration())
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                            .background(Color.green)
+                            .transition(AnyTransition.move(edge: .leading)).animation(.default)
+                    case "flexible_sync_observed_query_results":
+                        ObservedQueryResultsView()
+                            .environment(\.realmConfiguration, user!.flexibleSyncConfiguration())
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                            .background(Color.green)
+                            .transition(AnyTransition.move(edge: .leading)).animation(.default)
+                    default:
+                        EmptyView()
+                    }
+                } else {}
             }
         }
     }
@@ -138,6 +162,15 @@ struct LoginView: View {
                 })
             }
             .accessibilityIdentifier("login_button_2")
+            Button("Log In Anonymous") {
+                loggingIn()
+                loginHelper.login(email: nil,
+                                  password: nil,
+                                  completion: { user in
+                    didLogin(user)
+                })
+            }
+            .accessibilityIdentifier("login_button_3")
             Button("Logout") {
                 loginHelper.logout()
             }
@@ -162,9 +195,10 @@ class LoginHelper: ObservableObject {
         return applicationSupportDirectory.appendingPathComponent(Bundle.main.bundleIdentifier!)
     }
 
-    func login(email: String, password: String, completion: @escaping (User) -> Void) {
+    func login(email: String? = nil, password: String? = nil, completion: @escaping (User) -> Void) {
         let app = RealmSwift.App(id: ProcessInfo.processInfo.environment["app_id"]!, configuration: appConfig, rootDirectory: clientDataRoot)
-        app.login(credentials: .emailPassword(email: email, password: password))
+        let credentials: Credentials = (email != nil) ? .emailPassword(email: email!, password: password!) : .anonymous
+        app.login(credentials: credentials)
             .receive(on: DispatchQueue.main)
             .sink(receiveCompletion: { result in
                 if case let .failure(error) = result {
@@ -349,6 +383,74 @@ struct AutoOpenPartitionView: View {
     }
 }
 
+@available(macOS 12.0, *)
+struct ObservedQueryResultsStateView: View {
+    @ObservedQueryResults(SwiftPerson.self,
+                          subscription: { $0.age > 18 && $0.firstName == ProcessInfo.processInfo.environment["firstName"]! })
+    var persons
+
+    var body: some View {
+        VStack {
+            switch $persons.state {
+            case .pending:
+                ProgressView()
+            case .completed:
+                List {
+                    ForEach(persons) { person in
+                        Text("\(person.firstName)")
+                    }
+                }
+            case .error(let error):
+                ErrorView(error: error)
+                    .background(Color.red)
+                    .transition(AnyTransition.move(edge: .trailing)).animation(.default)
+            }
+            Spacer()
+            Button("Unsubscribe") {
+                Task {
+                    do {
+                        try await $persons.unsubscribe()
+                    }
+                }
+            }
+            .accessibilityIdentifier("unsubscribe_button")
+        }
+    }
+}
+
+@available(macOS 12.0, *)
+struct ObservedQueryResultsView: View {
+    @ObservedQueryResults(SwiftPerson.self,
+                          subscription: { $0.age >= 15 && $0.firstName == ProcessInfo.processInfo.environment["firstName"]! })
+    var persons
+    @State var searchFilter: String = ""
+
+    var body: some View {
+        VStack {
+            if persons.isEmpty {
+                ProgressView()
+            } else {
+                List {
+                    ForEach(persons) { person in
+                        HStack {
+                            Text("\(person.firstName)")
+                            Spacer()
+                            Text("\(person.age)")
+                        }
+                    }
+                }
+            }
+        }
+        .onDisappear {
+            Task {
+                do {
+                    try await $persons.unsubscribe()
+                }
+            }
+        }
+    }
+}
+
 struct ErrorView: View {
     var error: Error
     var body: some View {
@@ -369,6 +471,6 @@ struct ListView: View {
                 Text("\(object.firstName)")
             }
         }
-        .navigationTitle("SwiftHugeSyncObject's List")
+        .navigationTitle("SwiftPerson's List")
     }
 }
