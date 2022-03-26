@@ -237,7 +237,7 @@ import Realm.Private
                         the subscription by query and/or name.
      - returns: A query builder that produces a subscription which can used to search for the subscription.
      */
-    public func first<T: Object>(ofType type: T.Type, `where` query: @escaping (Query<T>) -> Query<Bool>) -> SyncSubscription? {
+    public func first<T: RealmCollectionValue>(ofType type: T.Type, `where` query: @escaping (Query<T>) -> Query<Bool>) -> SyncSubscription? {
         return rlmSyncSubscriptionSet.subscription(withClassName: "\(T.self)", predicate: query(Query()).predicate).map(SyncSubscription.init)
     }
 
@@ -249,7 +249,7 @@ import Realm.Private
                         the subscription by query and/or name.
      - returns: A query builder that produces a subscription which can used to search for the subscription.
      */
-    public func first<T: Object>(ofType type: T.Type, `where` predicateFormat: String, _ args: Any...) -> SyncSubscription? {
+    public func first<T: RealmCollectionValue>(ofType type: T.Type, `where` predicateFormat: String, _ args: Any...) -> SyncSubscription? {
         return rlmSyncSubscriptionSet.subscription(withClassName: "\(T.self)", predicate: NSPredicate(format: predicateFormat, argumentArray: unwrapOptionals(in: args))).map(SyncSubscription.init)
     }
 
@@ -261,7 +261,7 @@ import Realm.Private
                         the subscription by query and/or name.
      - returns: A query builder that produces a subscription which can used to search for the subscription.
      */
-    public func first<T: Object>(ofType type: T.Type, `where` predicate: NSPredicate) -> SyncSubscription? {
+    public func first<T: RealmCollectionValue>(ofType type: T.Type, `where` predicate: NSPredicate) -> SyncSubscription? {
         return rlmSyncSubscriptionSet.subscription(withClassName: "\(T.self)", predicate: predicate).map(SyncSubscription.init)
     }
 
@@ -426,7 +426,7 @@ extension SyncSubscriptionSet: Sequence {
 }
 
 #if swift(>=5.5) && canImport(_Concurrency)
-@available(macOS 12.0, tvOS 15.0, iOS 15.0, watchOS 8.0, *)
+@available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
 extension SyncSubscriptionSet {
     /**
      Asynchronously creates and commit a write transaction and updates the subscription set,

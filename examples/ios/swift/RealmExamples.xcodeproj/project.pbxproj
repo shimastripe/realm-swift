@@ -41,6 +41,10 @@
 		53454CD124EAC43700678E48 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 53454CD024EAC43700678E48 /* Assets.xcassets */; };
 		53454CD424EAC43700678E48 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 53454CD324EAC43700678E48 /* Preview Assets.xcassets */; };
 		53454CEC24EAC45700678E48 /* AppClip.app in Embed App Clips */ = {isa = PBXBuildFile; fileRef = 53454CDD24EAC45500678E48 /* AppClip.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		5351EF5D27EF39190018B2A4 /* ChirpApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5351EF5C27EF39190018B2A4 /* ChirpApp.swift */; };
+		5351EF6127EF391A0018B2A4 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5351EF6027EF391A0018B2A4 /* Assets.xcassets */; };
+		5351EF6427EF391A0018B2A4 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5351EF6327EF391A0018B2A4 /* Preview Assets.xcassets */; };
+		5351EF6927EF3C820018B2A4 /* RealmSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5351EF6827EF3C820018B2A4 /* RealmSwift.framework */; };
 		7D46395025C2E2750089EFD9 /* Example_v3.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D46394F25C2E2750089EFD9 /* Example_v3.swift */; };
 		7D46395425C2E7140089EFD9 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 7D46395325C2E7140089EFD9 /* README.md */; };
 		7D46399825C45FF00089EFD9 /* Example_v4.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D46399725C45FF00089EFD9 /* Example_v4.swift */; };
@@ -314,6 +318,11 @@
 		53454CD324EAC43700678E48 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		53454CD524EAC43700678E48 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		53454CDD24EAC45500678E48 /* AppClip.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AppClip.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		5351EF5A27EF39190018B2A4 /* Chirp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Chirp.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		5351EF5C27EF39190018B2A4 /* ChirpApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChirpApp.swift; sourceTree = "<group>"; };
+		5351EF6027EF391A0018B2A4 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		5351EF6327EF391A0018B2A4 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		5351EF6827EF3C820018B2A4 /* RealmSwift.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = RealmSwift.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		7D46394F25C2E2750089EFD9 /* Example_v3.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Example_v3.swift; sourceTree = "<group>"; };
 		7D46395325C2E7140089EFD9 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.markdown; };
 		7D46399725C45FF00089EFD9 /* Example_v4.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Example_v4.swift; sourceTree = "<group>"; };
@@ -413,6 +422,14 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		5351EF5727EF39190018B2A4 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				5351EF6927EF3C820018B2A4 /* RealmSwift.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -568,6 +585,7 @@
 		493759B8230D9F9A0078C28E /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				5351EF6827EF3C820018B2A4 /* RealmSwift.framework */,
 				0CF50F99273008DF0048A358 /* Realm.framework */,
 				0CF50F9A273008DF0048A358 /* RealmSwift.framework */,
 				AC2D0C15269C471200126DCF /* Realm.framework */,
@@ -630,6 +648,24 @@
 			isa = PBXGroup;
 			children = (
 				53454CD324EAC43700678E48 /* Preview Assets.xcassets */,
+			);
+			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+		5351EF5B27EF39190018B2A4 /* Chirp */ = {
+			isa = PBXGroup;
+			children = (
+				5351EF5C27EF39190018B2A4 /* ChirpApp.swift */,
+				5351EF6027EF391A0018B2A4 /* Assets.xcassets */,
+				5351EF6227EF391A0018B2A4 /* Preview Content */,
+			);
+			path = Chirp;
+			sourceTree = "<group>";
+		};
+		5351EF6227EF391A0018B2A4 /* Preview Content */ = {
+			isa = PBXGroup;
+			children = (
+				5351EF6327EF391A0018B2A4 /* Preview Assets.xcassets */,
 			);
 			path = "Preview Content";
 			sourceTree = "<group>";
@@ -706,6 +742,7 @@
 				227D20F01CB609A1008F641B /* Common */,
 				E8CB087F19BA6AEE0018434A /* Encryption */,
 				AC1004A6269C3D30008C482D /* AsyncOpenSwiftUI */,
+				5351EF5B27EF39190018B2A4 /* Chirp */,
 				493759B8230D9F9A0078C28E /* Frameworks */,
 				E886FB621A12A73E00CB2D0B /* GroupedTableView */,
 				493759A5230D8CA60078C28E /* ListSwiftUI */,
@@ -738,6 +775,7 @@
 				AC1004AE269C3D31008C482D /* AsyncOpenSwiftUI.app */,
 				AC1004B3269C3D31008C482D /* AsyncOpenSwiftUI.app */,
 				0CF50F80272FF6330048A358 /* Projections.app */,
+				5351EF5A27EF39190018B2A4 /* Chirp.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -888,6 +926,23 @@
 			productName = AppClip;
 			productReference = 53454CDD24EAC45500678E48 /* AppClip.app */;
 			productType = "com.apple.product-type.application.on-demand-install-capable";
+		};
+		5351EF5927EF39190018B2A4 /* Chirp */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 5351EF6727EF391A0018B2A4 /* Build configuration list for PBXNativeTarget "Chirp" */;
+			buildPhases = (
+				5351EF5627EF39190018B2A4 /* Sources */,
+				5351EF5727EF39190018B2A4 /* Frameworks */,
+				5351EF5827EF39190018B2A4 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Chirp;
+			productName = Chirp;
+			productReference = 5351EF5A27EF39190018B2A4 /* Chirp.app */;
+			productType = "com.apple.product-type.application";
 		};
 		AC1004AD269C3D31008C482D /* AsyncOpenSwiftUI (iOS) */ = {
 			isa = PBXNativeTarget;
@@ -1074,7 +1129,7 @@
 		E805758D19BA55E600376620 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastSwiftUpdateCheck = 1310;
+				LastSwiftUpdateCheck = 1330;
 				LastUpgradeCheck = 1300;
 				ORGANIZATIONNAME = Realm;
 				TargetAttributes = {
@@ -1095,6 +1150,11 @@
 					53454CDC24EAC45500678E48 = {
 						CreatedOnToolsVersion = 12.0;
 						LastSwiftMigration = 1300;
+						ProvisioningStyle = Automatic;
+					};
+					5351EF5927EF39190018B2A4 = {
+						CreatedOnToolsVersion = 13.3;
+						DevelopmentTeam = 2Z8M9MTEVV;
 						ProvisioningStyle = Automatic;
 					};
 					AC1004AD269C3D31008C482D = {
@@ -1158,6 +1218,7 @@
 				AC1004AD269C3D31008C482D /* AsyncOpenSwiftUI (iOS) */,
 				AC1004B2269C3D31008C482D /* AsyncOpenSwiftUI (macOS) */,
 				0CF50F7F272FF6330048A358 /* Projections */,
+				5351EF5927EF39190018B2A4 /* Chirp */,
 			);
 		};
 /* End PBXProject section */
@@ -1218,6 +1279,15 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		5351EF5827EF39190018B2A4 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				5351EF6427EF391A0018B2A4 /* Preview Assets.xcassets in Resources */,
+				5351EF6127EF391A0018B2A4 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1321,6 +1391,14 @@
 				3FA2F300268FCA380015062E /* Constants.swift in Sources */,
 				3FA2F304268FCAC80015062E /* ContentView.swift in Sources */,
 				3FA2F2FF268FCA380015062E /* DemoObject.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		5351EF5627EF39190018B2A4 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				5351EF5D27EF39190018B2A4 /* ChirpApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1693,6 +1771,81 @@
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = io.realm.AppClipParent.Clip;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		5351EF6527EF391A0018B2A4 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_ASSET_PATHS = "\"Chirp/Preview Content\"";
+				DEVELOPMENT_TEAM = 2Z8M9MTEVV;
+				ENABLE_PREVIEWS = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.4;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				MARKETING_VERSION = 1.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = io.realm.Chirp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		5351EF6627EF391A0018B2A4 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_ASSET_PATHS = "\"Chirp/Preview Content\"";
+				DEVELOPMENT_TEAM = 2Z8M9MTEVV;
+				ENABLE_PREVIEWS = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.4;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				MARKETING_VERSION = 1.0;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = io.realm.Chirp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -2276,6 +2429,15 @@
 			buildConfigurations = (
 				53454CEE24EAC45700678E48 /* Debug */,
 				53454CEF24EAC45700678E48 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		5351EF6727EF391A0018B2A4 /* Build configuration list for PBXNativeTarget "Chirp" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				5351EF6527EF391A0018B2A4 /* Debug */,
+				5351EF6627EF391A0018B2A4 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

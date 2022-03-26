@@ -1035,7 +1035,7 @@ extension Realm {
 public typealias NotificationBlock = (_ notification: Realm.Notification, _ realm: Realm) -> Void
 
 #if swift(>=5.5.2) && canImport(_Concurrency)
-@available(macOS 12.0, tvOS 15.0, iOS 15.0, watchOS 8.0, *)
+@available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
 extension Realm {
     /// Options for when to download all data from the server before opening
     /// a synchronized Realm.
@@ -1103,6 +1103,16 @@ extension Realm {
         self.init(rlmRealm!)
     }
 }
+
+// MARK: Query Based Sync
+
+@available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
+extension Realm {
+    public func objects<Element: RealmFetchable>(_ type: Element.Type) async throws -> Results<Element> {
+        return try await Results(RLMGetObjects(rlmRealm, type.className(), nil))
+    }
+}
+
 #endif // swift(>=5.5)
 
 /**

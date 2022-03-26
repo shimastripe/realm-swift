@@ -337,4 +337,8 @@ static bool isSync(realm::Realm::Config const& config) {
 }
 #endif
 
+- (bool)isFlexibleSyncConfiguration {
+    return [self config].sync_config->flx_sync_requested;
+}
+
 @end
