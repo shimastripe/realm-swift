@@ -76,6 +76,13 @@ struct MainView: View {
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                         .background(Color.green)
                         .transition(AnyTransition.move(edge: .leading)).animation(.default)
+                case "async_open_custom_configuration":
+                    AsyncOpenPartitionView()
+                        .environment(\.realmConfiguration, getConfiguration())
+                        .environment(\.partitionValue, user!.id)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .background(Color.green)
+                        .transition(AnyTransition.move(edge: .leading)).animation(.default)
                 case "async_open_environment_partition":
                     AsyncOpenPartitionView()
                         .environment(\.partitionValue, partitionValue ?? user!.id)
@@ -96,6 +103,13 @@ struct MainView: View {
                         .transition(AnyTransition.move(edge: .leading)).animation(.default)
                 case "auto_open":
                     AutoOpenView()
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .background(Color.green)
+                        .transition(AnyTransition.move(edge: .leading)).animation(.default)
+                case "auto_open_custom_configuration":
+                    AutoOpenPartitionView()
+                        .environment(\.realmConfiguration, getConfiguration())
+                        .environment(\.partitionValue, user!.id)
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                         .background(Color.green)
                         .transition(AnyTransition.move(edge: .leading)).animation(.default)
@@ -122,6 +136,19 @@ struct MainView: View {
                 }
             }
         }
+    }
+
+    func getConfiguration() -> Realm.Configuration {
+        var configuration = Realm.Configuration()
+        configuration.encryptionKey = getKey()
+        return configuration
+    }
+
+    func getKey() -> Data {
+        var key = Data(count: 64)
+        _ = key.withUnsafeMutableBytes { (pointer: UnsafeMutableRawBufferPointer) in
+            SecRandomCopyBytes(kSecRandomDefault, 64, pointer.baseAddress!) }
+        return key
     }
 }
 
@@ -219,7 +246,7 @@ struct AsyncOpenView: View {
             case .open(let realm):
                 if canNavigate {
                     ListView()
-                        .environment(\.realm, realm)
+                        .environment(\.realmConfiguration, realm.configuration)
                         .transition(AnyTransition.move(edge: .leading)).animation(.default)
                 } else {
                     VStack {
@@ -266,7 +293,7 @@ struct AutoOpenView: View {
             case .open(let realm):
                 if canNavigate {
                     ListView()
-                        .environment(\.realm, realm)
+                        .environment(\.realmConfiguration, realm.configuration)
                         .transition(AnyTransition.move(edge: .leading)).animation(.default)
                 } else {
                     VStack {
@@ -312,7 +339,7 @@ struct AsyncOpenPartitionView: View {
                 ProgressView("Waiting for user to logged in...")
             case .open(let realm):
                 ListView()
-                    .environment(\.realm, realm)
+                    .environment(\.realmConfiguration, realm.configuration)
                     .transition(AnyTransition.move(edge: .leading)).animation(.default)
             case .error(let error):
                 ErrorView(error: error)
@@ -345,7 +372,7 @@ struct AutoOpenPartitionView: View {
                 ProgressView("Waiting for user to logged in...")
             case .open(let realm):
                 ListView()
-                    .environment(\.realm, realm)
+                    .environment(\.realmConfiguration, realm.configuration)
                     .transition(AnyTransition.move(edge: .leading)).animation(.default)
             case .error(let error):
                 ErrorView(error: error)
