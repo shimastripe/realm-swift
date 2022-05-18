@@ -135,7 +135,15 @@ using namespace realm;
     schema.accessorClass = objectClass;
     schema.unmanagedClass = objectClass;
     schema.isSwiftClass = isSwift;
-    schema.isEmbedded = [(id)objectClass isEmbedded];
+
+    bool isEmbedded = [(id)objectClass isEmbedded];
+    bool isAsymmetric = [(id)objectClass isAsymmetric];
+    if (isEmbedded && isAsymmetric) {
+        @throw RLMException(@"Object '%@' is declared both as `Embedded` and `Asymmetric`, which is not supported", className);
+    } else {
+        schema.isEmbedded = isEmbedded;
+        schema.isAsymmetric = isAsymmetric;
+    }
 
     // create array of RLMProperties, inserting properties of superclasses first
     Class cls = objectClass;

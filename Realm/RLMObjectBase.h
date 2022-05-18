@@ -133,4 +133,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface RealmSwiftEmbeddedObject : RLMObjectBase
 @end
 
+@interface RealmSwiftAsymmetricObject : RLMObjectBase
+@end
+
 NS_ASSUME_NONNULL_END

@@ -529,7 +529,7 @@ static RLMRealm *getCachedRealm(RLMRealmConfiguration *configuration, void *cach
         // set/align schema or perform migration if needed
         RLMSchema *schema = configuration.customSchema ?: RLMSchema.sharedSchema;
 
-        Realm::MigrationFunction migrationFunction;
+        MigrationFunction migrationFunction;
         auto migrationBlock = configuration.migrationBlock;
         if (migrationBlock && configuration.schemaVersion > 0) {
             migrationFunction = [=](SharedRealm old_realm, SharedRealm realm, Schema& mutableSchema) {
@@ -1101,12 +1101,12 @@ static RLMRealm *getCachedRealm(RLMRealmConfiguration *configuration, void *cach
         // to synced realm case.
         auto& config = configuration.configRef;
         if (config.sync_config && _realm->config().sync_config) {
-            _realm->write_copy(config.path,
-                               {static_cast<const char *>(config.encryption_key.data()), config.encryption_key.size()});
+//            _realm->write_copy(config.path,
+//                               {static_cast<const char *>(config.encryption_key.data()), config.encryption_key.size()});
         } else if (!config.sync_config && _realm->config().sync_config) {
             [self writeCopyToURL:configuration.fileURL encryptionKey:configuration.encryptionKey error:error];
         } else {
-            _realm->export_to(config);
+//            _realm->export_to(config);
         }
     }
     catch (...) {
