@@ -1101,6 +1101,14 @@ extension Realm {
     }
 }
 
+// MARK: Asymmetric Sync
+
+extension Realm {
+    public func push(_ object: AsymmetricObject) {
+        //
+    }
+}
+
 // MARK: Equatable
 
 extension Realm: Equatable {
