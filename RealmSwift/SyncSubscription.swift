@@ -406,7 +406,7 @@ extension SyncSubscriptionSet: Sequence {
 @available(macOS 10.15, tvOS 13.0, iOS 13.0, watchOS 6.0, *)
 extension SyncSubscriptionSet {
     /**
-     Asynchronously creates and commit a write transaction and updates the subscription set,
+     Asynchronously creates a write transaction and updates the subscription set,
      this will not wait for the server to acknowledge and see all the data associated with this
      collection of subscription.
 
