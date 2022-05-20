@@ -336,7 +336,7 @@ protocol _QuerySubscription {
     // MARK: Subscription Retrieval
 
     /**
-     Returns a `AnyQueryResults`representing the query results at the given `position`.
+     Returns a `AnyQueryResults` representing the query results at the given `position`.
 
      - parameter position: The index for the resulting subscription.
      */
