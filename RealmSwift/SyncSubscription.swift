@@ -470,7 +470,7 @@ extension SyncSubscriptionSet {
     }
 
     /**
-     Appends the query to the current subscription set and wait for the server to acknowledge the subscription,
+     Appends the query to the current subscription set and waits for the server to acknowledge the subscription,
      returns a tuple of `QueryResults`s containing all the data associated to this queries.
 
      - parameter query: A `QuerySubscription` representing the query which will be used for the subscription.
