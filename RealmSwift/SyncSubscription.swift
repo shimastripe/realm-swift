@@ -169,6 +169,45 @@ public struct AnyQueryResults: SyncSubscription, Sequence {
     public typealias Element = ElementType
 
     internal var _rlmSyncSubscription: RLMSyncSubscription?
+    internal var results: Results<Element>
+    var collection: RLMCollection {
+        results.collection
+    }
+
+    /// A human-readable description of the objects represented by the results.
+    public var description: String {
+        return RLMDescriptionWithMaxDepth("QueryResults<\(Element.self)>", self.results.collection, RLMDescriptionMaxDepth)
+    }
+
+    // MARK: Initializers
+
+    init(_ rlmSyncSubscription: RLMSyncSubscription, _ results: Results<Element>) {
+        self._rlmSyncSubscription = rlmSyncSubscription
+        self.results = results
+    }
+
+    init(collection: RLMCollection) {
+        fatalError("path should never be hit")
+    }
+    
+    // MARK: Object Retrieval
+    /**
+     Returns the object at the given `index`.
+     - parameter index: The index.
+     */
+    public subscript(position: Int) -> Element {
+        return results[position]
+    }
+
+    // MARK: Equatable
+
+    public static func == (lhs: QueryResults<Element>, rhs: QueryResults<Element>) -> Bool {
+        lhs.results == rhs.results
+    }
+}
+    public typealias Element = ElementType
+
+    internal var _rlmSyncSubscription: RLMSyncSubscription?
     internal var results: Results<Element>?
     internal let collection: RLMCollection
 
