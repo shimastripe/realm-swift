@@ -338,7 +338,7 @@ protocol _QuerySubscription {
     // MARK: Subscription Retrieval
 
     /**
-     Returns a `AnyQueryResults`representing the query results at the given `position`.
+     Returns a `AnyQueryResults` representing the query results at the given `position`.
 
      - parameter position: The index for the resulting subscription.
      */
@@ -408,7 +408,7 @@ extension SyncSubscriptionSet: Sequence {
 @available(macOS 10.15, tvOS 13.0, iOS 13.0, watchOS 6.0, *)
 extension SyncSubscriptionSet {
     /**
-     Asynchronously creates and commit a write transaction and updates the subscription set,
+     Asynchronously creates a write transaction and updates the subscription set,
      this will not wait for the server to acknowledge and see all the data associated with this
      collection of subscription.
 
@@ -440,7 +440,7 @@ extension SyncSubscriptionSet {
     }
 
     /**
-     Appends the query to the current subscription set and wait for the server to acknowledge the subscription,
+     Appends the query to the current subscription set and waits for the server to acknowledge the subscription,
      returns a `QueryResults` containing all the data associated to this query.
 
      - parameter query: The query which will be used for the subscription.
@@ -472,7 +472,7 @@ extension SyncSubscriptionSet {
     }
 
     /**
-     Appends the query to the current subscription set and wait for the server to acknowledge the subscription,
+     Appends the query to the current subscription set and waits for the server to acknowledge the subscription,
      returns a tuple of `QueryResults`s containing all the data associated to this queries.
 
      - parameter query: A `QuerySubscription` representing the query which will be used for the subscription.
