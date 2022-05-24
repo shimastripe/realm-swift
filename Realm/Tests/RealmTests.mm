@@ -72,7 +72,7 @@
     RLMRealm *inMemoryRealm = [RLMRealm realmWithConfiguration:config error:nil];
 
     // make sure we can't open disk-realm at same path
-    config.fileURL = [NSURL fileURLWithPath:@(inMemoryRealm.configuration.config.path.c_str())];
+    config.fileURL = [NSURL fileURLWithPath:@(inMemoryRealm.configuration.path.c_str())];
     NSError *error; // passing in a reference to assert that this error can't be catched!
     RLMAssertThrowsWithReasonMatching([RLMRealm realmWithConfiguration:config error:&error],
                                       @"Realm at path '.*' already opened with different inMemory settings");
@@ -1494,6 +1494,7 @@
         }];
     }];
     [self waitForExpectationsWithTimeout:1.0 handler:nil];
+    [realm refresh];
     XCTAssertEqual(1U, [StringObject allObjectsInRealm:realm].count);
 }
 
@@ -1520,6 +1521,7 @@
     }];
 
     [self waitForExpectationsWithTimeout:1.0 handler:nil];
+    [realm refresh];
     XCTAssertEqual(0U, [StringObject allObjectsInRealm:realm].count);
 }
 
@@ -1554,6 +1556,7 @@
     }];
 
     [self waitForExpectationsWithTimeout:1.0 handler:nil];
+    [realm refresh];
     XCTAssertEqual(0U, [StringObject allObjectsInRealm:realm].count);
 }
 
@@ -1592,7 +1595,7 @@
         [realm createObject:StringObject.className withValue:@[@"string"]];
         [realm commitAsyncWriteTransaction:^(NSError *) {
             [asyncComplete fulfill];
-        } isGroupingAllowed:true];
+        } allowGrouping:true];
     }];
 
     [realm beginAsyncWriteTransaction:^{
@@ -2346,6 +2349,10 @@
     XCTAssertNil(writeError);
     RLMRealm *copy = [self realmWithTestPath];
     XCTAssertEqual(1U, [IntObject allObjectsInRealm:copy].count);
+
+    RLMRealm *frozenCopy = [copy freeze];
+    XCTAssertTrue(frozenCopy.isFrozen);
+    XCTAssertTrue([IntObject allObjectsInRealm:frozenCopy].isFrozen);
 }
 
 - (void)testCannotOverwriteWithWriteCopy
@@ -2483,6 +2490,10 @@
     XCTAssertNil(writeError);
     RLMRealm *copy = [RLMRealm realmWithConfiguration:configuration error:nil];
     XCTAssertEqual(1U, [IntObject allObjectsInRealm:copy].count);
+
+    RLMRealm *frozenCopy = [copy freeze];
+    XCTAssertTrue(frozenCopy.isFrozen);
+    XCTAssertTrue([IntObject allObjectsInRealm:frozenCopy].isFrozen);
 }
 
 - (void)testWritingCopyWithConfigurationUsesWriteTransactionInProgress

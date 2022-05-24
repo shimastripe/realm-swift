@@ -542,7 +542,6 @@ extension Projection: _ObservedResultsValue { }
             storage.filter = newValue
         }
     }
-#if swift(>=5.5)
     /// Stores a type safe query used for filtering the Results. This is mutually exclusive
     /// to the `filter` parameter.
     @State public var `where`: ((Query<ResultType>) -> Query<Bool>)? {
@@ -554,7 +553,6 @@ extension Projection: _ObservedResultsValue { }
             storage.where = newValue?(Query()).predicate
         }
     }
-#endif
     /// :nodoc:
     @State public var sortDescriptor: SortDescriptor? {
         willSet {
@@ -626,7 +624,6 @@ extension Projection: _ObservedResultsValue { }
         self.filter = filter
         self.sortDescriptor = sortDescriptor
     }
-#if swift(>=5.5)
     /**
      Initialize a `ObservedResults` struct for a given `Object` or `EmbeddedObject` type.
      - parameter type: Observed type
@@ -650,7 +647,6 @@ extension Projection: _ObservedResultsValue { }
         self.where = `where`
         self.sortDescriptor = sortDescriptor
     }
-#endif
     /// :nodoc:
     public init(_ type: ResultType.Type,
                 keyPaths: [String]? = nil,

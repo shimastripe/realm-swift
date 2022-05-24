@@ -864,7 +864,7 @@ extension SyncSubscriptionSet {
         }
     }
 }
-#endif // canImport(_Concurrency)
+#endif // swift(>=5.6)
 
 extension User {
     /**
