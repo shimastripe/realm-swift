@@ -155,7 +155,7 @@ public struct AnyQueryResults: SyncSubscription, Sequence {
         guard _rlmSyncSubscription!.objectClassName == "\(T.self)" else {
             return nil
         }
-        return QueryResults(_rlmSyncSubscription!, results.realm!.objects(T.self).filter(_rlmSyncSubscription!.queryString))
+        return QueryResults(_rlmSyncSubscription!, unsafeBitCast(results, to: Results<T>.self))
     }
 }
 
