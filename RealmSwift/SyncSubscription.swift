@@ -155,7 +155,7 @@ public struct AnyQueryResults: SyncSubscription, Sequence {
         guard _rlmSyncSubscription!.objectClassName == "\(T.self)" else {
             return nil
         }
-        return QueryResults(_rlmSyncSubscription!, results.realm!.objects(T.self).filter(_rlmSyncSubscription!.queryString))
+        return QueryResults(_rlmSyncSubscription!, unsafeBitCast(results, to: Results<T>.self))
     }
 }
 
@@ -169,8 +169,10 @@ public struct AnyQueryResults: SyncSubscription, Sequence {
     public typealias Element = ElementType
 
     internal var _rlmSyncSubscription: RLMSyncSubscription?
-    internal var results: Results<Element>?
-    internal let collection: RLMCollection
+    internal var results: Results<Element>
+    var collection: RLMCollection {
+        results.collection
+    }
 
     /// A human-readable description of the objects represented by the results.
     public var description: String {
@@ -179,14 +181,13 @@ public struct AnyQueryResults: SyncSubscription, Sequence {
 
     // MARK: Initializers
 
-    init(collection: RLMCollection) {
-        self.collection = collection
-    }
-
     init(_ rlmSyncSubscription: RLMSyncSubscription, _ results: Results<Element>) {
         self._rlmSyncSubscription = rlmSyncSubscription
         self.results = results
-        self.collection = results.collection
+    }
+
+    init(collection: RLMCollection) {
+        fatalError("path should never be hit")
     }
 
     // MARK: Object Retrieval
@@ -263,15 +264,6 @@ protocol _QuerySubscription {
     private let rlmSyncSubscriptionSet: RLMSyncSubscriptionSet
     private let realm: Realm
 
-    // MARK: Initializers
-
-    internal init(_ rlmSyncSubscriptionSet: RLMSyncSubscriptionSet, realm: Realm) {
-        self.rlmSyncSubscriptionSet = rlmSyncSubscriptionSet
-        self.realm = realm
-    }
-
-    // MARK: Internal
-
     private func write(_ block: (() -> Void), onComplete: ((Error?) -> Void)? = nil) {
         rlmSyncSubscriptionSet.write(block, onComplete: onComplete ?? { _ in })
     }
@@ -281,20 +273,30 @@ protocol _QuerySubscription {
                                                predicate: subscription.predicate)
     }
 
-    internal func write<T: RealmFetchable>(_ query: ((Query<T>) -> Query<Bool>)? = nil, onComplete: @escaping (QueryResults<T>?, Error?) -> Void) {
-        let querySubscription = QuerySubscription<T>(query)
+    // MARK: Initializers
+
+    internal init(_ rlmSyncSubscriptionSet: RLMSyncSubscriptionSet, realm: Realm) {
+        self.rlmSyncSubscriptionSet = rlmSyncSubscriptionSet
+        self.realm = realm
+    }
+
+    // MARK: Internal
+
+    /// Created to be used to get results for SwiftUI
+    internal func subscribeToAll<T: RealmFetchable>(_ callback: @escaping (Result<QueryResults<T>, Error>) -> Void) {
+        let querySubscription = QuerySubscription<T>(NSPredicate(format: "TRUEPREDICATE"))
         let block = {
             rlmSyncSubscriptionSet.addSubscription(withClassName: querySubscription.className,
                                                    predicate: querySubscription.predicate)
         }
-        rlmSyncSubscriptionSet.write(block, onComplete: { error in
+        rlmSyncSubscriptionSet.write(block, queue: DispatchQueue.main) { (error: Error?) in
             if let error = error {
-                onComplete(nil, error)
+                callback(.failure(error))
             } else {
-                onComplete(QueryResults(rlmSyncSubscriptionSet.subscription(withClassName: querySubscription.className, predicate: querySubscription.predicate)!,
-                                        realm.objects(T.self).filter(querySubscription.predicate)), nil)
+                callback(.success(QueryResults(rlmSyncSubscriptionSet.subscription(withClassName: querySubscription.className, predicate: querySubscription.predicate)!,
+                                               realm.objects(T.self).filter(querySubscription.predicate))))
             }
-        })
+        }
     }
 
     // MARK: Public
@@ -862,22 +864,6 @@ extension SyncSubscriptionSet {
         }
     }
 }
-
-#if !(os(iOS) && (arch(i386) || arch(arm)))
-@available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
-extension ObservedQueryResults {
-    /// Unsubscribe the current `QueryResults`, associated to this property wrapper,
-    /// also will remove the data associated to that subscription from the results.
-    @MainActor
-    public func unsubscribe() async throws {
-        guard let queryResults = storage.queryResults else {
-            return
-        }
-        try await queryResults.unsubscribe()
-    }
-
-}
-#endif
 #endif // canImport(_Concurrency)
 
 extension User {

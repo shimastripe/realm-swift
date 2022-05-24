@@ -245,6 +245,7 @@ NSUInteger RLMFastEnumerate(NSFastEnumerationState *state,
 }
 
 - (void)write:(__attribute__((noescape)) void(^)(void))block
+        queue:(nullable dispatch_queue_t)queue
    onComplete:(void(^)(NSError *))completionBlock {
     if (_mutableSubscriptionSet != nil) {
         @throw RLMException(@"Cannot initiate a write transaction on subscription set that is already been updated.");
@@ -261,15 +262,30 @@ NSUInteger RLMFastEnumerate(NSFastEnumerationState *state,
         return completionBlock(err);
     }
     _subscriptionSet->get_state_change_notification(realm::sync::SubscriptionSet::State::Complete)
-        .get_async([completionBlock](realm::StatusWith<realm::sync::SubscriptionSet::State> state) mutable noexcept {
-            if (state.is_ok()) {
-                completionBlock(nil);
+        .get_async([completionBlock, queue](realm::StatusWith<realm::sync::SubscriptionSet::State> state) mutable noexcept {
+            void (^block)(void) = ^{
+                if (state.is_ok()) {
+                    completionBlock(nil);
+                } else {
+                    NSError* error = [[NSError alloc] initWithDomain:RLMFlexibleSyncErrorDomain code:state.get_status().code() userInfo:@{@"reason": @(state.get_status().reason().c_str())}];
+                    completionBlock(error);
+                }
+            };
+
+            if (queue) {
+                dispatch_async(queue, ^{
+                    block();
+                });
             } else {
-                NSError* error = [[NSError alloc] initWithDomain:RLMFlexibleSyncErrorDomain code:state.get_status().code() userInfo:@{@"reason": @(state.get_status().reason().c_str())}];
-                completionBlock(error);
+                block();
             }
         });
 }
+
+- (void)write:(__attribute__((noescape)) void(^)(void))block onComplete:(void(^)(NSError *))completionBlock {
+    [self write:block queue:nil onComplete:completionBlock];
+}
+
 
 #pragma mark - Find subscription
 

@@ -385,8 +385,8 @@ struct AutoOpenPartitionView: View {
 
 @available(macOS 12.0, *)
 struct ObservedQueryResultsStateView: View {
-    @ObservedQueryResults(SwiftPerson.self,
-                          subscription: { $0.age > 18 && $0.firstName == ProcessInfo.processInfo.environment["firstName"]! })
+    @ObservedResults(SwiftPerson.self,
+                     where: { $0.age > 18 && $0.firstName == ProcessInfo.processInfo.environment["firstName"]! })
     var persons
 
     var body: some View {
@@ -420,8 +420,8 @@ struct ObservedQueryResultsStateView: View {
 
 @available(macOS 12.0, *)
 struct ObservedQueryResultsView: View {
-    @ObservedQueryResults(SwiftPerson.self,
-                          subscription: { $0.age >= 15 && $0.firstName == ProcessInfo.processInfo.environment["firstName"]! })
+    @ObservedResults(SwiftPerson.self,
+                     where: { $0.age >= 15 && $0.firstName == ProcessInfo.processInfo.environment["firstName"]! })
     var persons
     @State var searchFilter: String = ""
 
