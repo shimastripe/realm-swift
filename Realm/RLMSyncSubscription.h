@@ -331,8 +331,6 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (id)objectAtIndexedSubscript:(NSUInteger)index;
 
-- (void)waitForCompletion:(void(^)(NSError * _Nullable))block;
-
 @end
 
 NS_ASSUME_NONNULL_END

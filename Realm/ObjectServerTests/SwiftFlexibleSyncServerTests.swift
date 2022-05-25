@@ -192,10 +192,12 @@ extension SwiftFlexibleSyncTests {
         XCTAssertEqual(realm.subscriptions.count, 1)
 
         try await persons.unsubscribe()
+        XCTAssertEqual(realm.subscriptions.count, 0)
+
         waitForDownloads(for: realm)
         XCTAssertEqual(persons.count, 0)
         XCTAssertEqual(persons2.count, 0)
-        XCTAssertEqual(realm.subscriptions.count, 0)
+
     }
 
     @MainActor
