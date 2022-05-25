@@ -68,8 +68,6 @@ public protocol _SyncSubscription {
     @available(macOS 10.15, tvOS 13.0, iOS 13.0, watchOS 6.0, *)
     /**
      Removes the current subscription from the subscription set, associated to this `QueryResults`.
-
-     - throws: An `NSError` if t
      */
     func unsubscribe() async throws
     #endif // canImport(_Concurrency)
