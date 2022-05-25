@@ -498,7 +498,6 @@ extension SyncSubscriptionSet {
 
      - throws: An `NSError` if the subscription couldn't be completed by the client or server.
      */
-    // swiftlint:disable large_tuple
     public func subscribe<T1: RealmFetchable, T2: RealmFetchable, T3: RealmFetchable>(to query: QuerySubscription<T1>, _ query2: QuerySubscription<T2>, _ query3: QuerySubscription<T3>) async throws -> (QueryResults<T1>, QueryResults<T2>, QueryResults<T3>) {
         try await subscribe(query, query2, query3)
         return (QueryResults(rlmSyncSubscriptionSet.subscription(withClassName: query.className, predicate: query.predicate)!,
@@ -521,7 +520,6 @@ extension SyncSubscriptionSet {
 
      - throws: An `NSError` if the subscription couldn't be completed by the client or server.
      */
-    // swiftlint:disable large_tuple
     public func subscribe<T1: RealmFetchable, T2: RealmFetchable, T3: RealmFetchable, T4: RealmFetchable>(to query: QuerySubscription<T1>, _ query2: QuerySubscription<T2>, _ query3: QuerySubscription<T3>, _ query4: QuerySubscription<T4>) async throws -> (QueryResults<T1>, QueryResults<T2>, QueryResults<T3>, QueryResults<T4>) {
         try await subscribe(query, query2, query3, query4)
         return (QueryResults(rlmSyncSubscriptionSet.subscription(withClassName: query.className, predicate: query.predicate)!,
@@ -547,7 +545,6 @@ extension SyncSubscriptionSet {
 
      - throws: An `NSError` if the subscription couldn't be completed by the client or server.
      */
-    // swiftlint:disable large_tuple
     public func subscribe<T1: RealmFetchable, T2: RealmFetchable, T3: RealmFetchable, T4: RealmFetchable, T5: RealmFetchable>(to query: QuerySubscription<T1>, _ query2: QuerySubscription<T2>, _ query3: QuerySubscription<T3>, _ query4: QuerySubscription<T4>, _ query5: QuerySubscription<T5>) async throws -> (QueryResults<T1>, QueryResults<T2>, QueryResults<T3>, QueryResults<T4>, QueryResults<T5>) {
         try await subscribe(query, query2, query3, query4, query5)
         return (QueryResults(rlmSyncSubscriptionSet.subscription(withClassName: query.className, predicate: query.predicate)!,
@@ -576,7 +573,6 @@ extension SyncSubscriptionSet {
 
      - throws: An `NSError` if the subscription couldn't be completed by the client or server.
      */
-    // swiftlint:disable large_tuple
     public func subscribe<T1: RealmFetchable, T2: RealmFetchable, T3: RealmFetchable, T4: RealmFetchable, T5: RealmFetchable, T6: RealmFetchable>(to query: QuerySubscription<T1>, _ query2: QuerySubscription<T2>, _ query3: QuerySubscription<T3>, _ query4: QuerySubscription<T4>, _ query5: QuerySubscription<T5>, _ query6: QuerySubscription<T6>) async throws -> (QueryResults<T1>, QueryResults<T2>, QueryResults<T3>, QueryResults<T4>, QueryResults<T5>, QueryResults<T6>) {
         try await subscribe(query, query2, query3, query4, query5, query6)
         return (QueryResults(rlmSyncSubscriptionSet.subscription(withClassName: query.className, predicate: query.predicate)!,
@@ -608,7 +604,6 @@ extension SyncSubscriptionSet {
 
      - throws: An `NSError` if the subscription couldn't be completed by the client or server.
      */
-    // swiftlint:disable large_tuple
     public func subscribe<T1: RealmFetchable, T2: RealmFetchable, T3: RealmFetchable, T4: RealmFetchable, T5: RealmFetchable, T6: RealmFetchable, T7: RealmFetchable>(to query: QuerySubscription<T1>, _ query2: QuerySubscription<T2>, _ query3: QuerySubscription<T3>, _ query4: QuerySubscription<T4>, _ query5: QuerySubscription<T5>, _ query6: QuerySubscription<T6>, _ query7: QuerySubscription<T6>) async throws -> (QueryResults<T1>, QueryResults<T2>, QueryResults<T3>, QueryResults<T4>, QueryResults<T5>, QueryResults<T6>, QueryResults<T7>) {
         try await subscribe(query, query2, query3, query4, query5, query6, query7)
         return (QueryResults(rlmSyncSubscriptionSet.subscription(withClassName: query.className, predicate: query.predicate)!,
@@ -643,7 +638,6 @@ extension SyncSubscriptionSet {
 
      - throws: An `NSError` if the subscription couldn't be completed by the client or server.
      */
-    // swiftlint:disable large_tuple
     public func subscribe<T1: RealmFetchable, T2: RealmFetchable, T3: RealmFetchable, T4: RealmFetchable, T5: RealmFetchable, T6: RealmFetchable, T7: RealmFetchable, T8: RealmFetchable>(to query: QuerySubscription<T1>, _ query2: QuerySubscription<T2>, _ query3: QuerySubscription<T3>, _ query4: QuerySubscription<T4>, _ query5: QuerySubscription<T5>, _ query6: QuerySubscription<T6>, _ query7: QuerySubscription<T7>, _ query8: QuerySubscription<T8>) async throws -> (QueryResults<T1>, QueryResults<T2>, QueryResults<T3>, QueryResults<T4>, QueryResults<T5>, QueryResults<T6>, QueryResults<T7>, QueryResults<T8>) {
         try await subscribe(query, query2, query3, query4, query5, query6, query7, query8)
         return (QueryResults(rlmSyncSubscriptionSet.subscription(withClassName: query.className, predicate: query.predicate)!,
@@ -681,7 +675,6 @@ extension SyncSubscriptionSet {
 
      - throws: An `NSError` if the subscription couldn't be completed by the client or server.
      */
-    // swiftlint:disable large_tuple
     public func subscribe<T1: RealmFetchable, T2: RealmFetchable, T3: RealmFetchable, T4: RealmFetchable, T5: RealmFetchable, T6: RealmFetchable, T7: RealmFetchable, T8: RealmFetchable, T9: RealmFetchable>(to query: QuerySubscription<T1>, _ query2: QuerySubscription<T2>, _ query3: QuerySubscription<T3>, _ query4: QuerySubscription<T4>, _ query5: QuerySubscription<T5>, _ query6: QuerySubscription<T6>, _ query7: QuerySubscription<T7>, _ query8: QuerySubscription<T8>, _ query9: QuerySubscription<T9>) async throws -> (QueryResults<T1>, QueryResults<T2>, QueryResults<T3>, QueryResults<T4>, QueryResults<T5>, QueryResults<T6>, QueryResults<T7>, QueryResults<T8>, QueryResults<T9>) {
         try await subscribe(query, query2, query3, query4, query5, query6, query7, query8, query9)
         return (QueryResults(rlmSyncSubscriptionSet.subscription(withClassName: query.className, predicate: query.predicate)!,
@@ -722,7 +715,6 @@ extension SyncSubscriptionSet {
 
      - throws: An `NSError` if the subscription couldn't be completed by the client or server.
      */
-    // swiftlint:disable large_tuple
     public func subscribe<T1: RealmFetchable, T2: RealmFetchable, T3: RealmFetchable, T4: RealmFetchable, T5: RealmFetchable, T6: RealmFetchable, T7: RealmFetchable, T8: RealmFetchable, T9: RealmFetchable, T10: RealmFetchable>(to query: QuerySubscription<T1>, _ query2: QuerySubscription<T2>, _ query3: QuerySubscription<T3>, _ query4: QuerySubscription<T4>, _ query5: QuerySubscription<T5>, _ query6: QuerySubscription<T6>, _ query7: QuerySubscription<T7>, _ query8: QuerySubscription<T8>, _ query9: QuerySubscription<T9>, _ query10: QuerySubscription<T10>) async throws -> (QueryResults<T1>, QueryResults<T2>, QueryResults<T3>, QueryResults<T4>, QueryResults<T5>, QueryResults<T6>, QueryResults<T7>, QueryResults<T8>, QueryResults<T9>, QueryResults<T10>) {
         try await subscribe(query, query2, query3, query4, query5, query6, query7, query8, query9, query10)
         return (QueryResults(rlmSyncSubscriptionSet.subscription(withClassName: query.className, predicate: query.predicate)!,
@@ -766,7 +758,6 @@ extension SyncSubscriptionSet {
 
      - throws: An `NSError` if the subscription couldn't be completed by the client or server.
      */
-    // swiftlint:disable large_tuple
     public func subscribe<T1: RealmFetchable, T2: RealmFetchable, T3: RealmFetchable, T4: RealmFetchable, T5: RealmFetchable, T6: RealmFetchable, T7: RealmFetchable, T8: RealmFetchable, T9: RealmFetchable, T10: RealmFetchable, T11: RealmFetchable>(to query: QuerySubscription<T1>, _ query2: QuerySubscription<T2>, _ query3: QuerySubscription<T3>, _ query4: QuerySubscription<T4>, _ query5: QuerySubscription<T5>, _ query6: QuerySubscription<T6>, _ query7: QuerySubscription<T7>, _ query8: QuerySubscription<T8>, _ query9: QuerySubscription<T9>, _ query10: QuerySubscription<T10>, _ query11: QuerySubscription<T11>) async throws -> (QueryResults<T1>, QueryResults<T2>, QueryResults<T3>, QueryResults<T4>, QueryResults<T5>, QueryResults<T6>, QueryResults<T7>, QueryResults<T8>, QueryResults<T9>, QueryResults<T10>, QueryResults<T11>) {
         try await subscribe(query, query2, query3, query4, query5, query6, query7, query8, query9, query10, query11)
         return (QueryResults(rlmSyncSubscriptionSet.subscription(withClassName: query.className, predicate: query.predicate)!,
@@ -813,7 +804,6 @@ extension SyncSubscriptionSet {
 
      - throws: An `NSError` if the subscription couldn't be completed by the client or server.
      */
-    // swiftlint:disable large_tuple
     public func subscribe<T1: RealmFetchable, T2: RealmFetchable, T3: RealmFetchable, T4: RealmFetchable, T5: RealmFetchable, T6: RealmFetchable, T7: RealmFetchable, T8: RealmFetchable, T9: RealmFetchable, T10: RealmFetchable, T11: RealmFetchable, T12: RealmFetchable>(to query: QuerySubscription<T1>, _ query2: QuerySubscription<T2>, _ query3: QuerySubscription<T3>, _ query4: QuerySubscription<T4>, _ query5: QuerySubscription<T5>, _ query6: QuerySubscription<T6>, _ query7: QuerySubscription<T7>, _ query8: QuerySubscription<T8>, _ query9: QuerySubscription<T9>, _ query10: QuerySubscription<T10>, _ query11: QuerySubscription<T11>, _ query12: QuerySubscription<T12>) async throws -> (QueryResults<T1>, QueryResults<T2>, QueryResults<T3>, QueryResults<T4>, QueryResults<T5>, QueryResults<T6>, QueryResults<T7>, QueryResults<T8>, QueryResults<T9>, QueryResults<T10>, QueryResults<T11>, QueryResults<T12>) {
         try await subscribe(query, query2, query3, query4, query5, query6, query7, query8, query9, query10, query11, query12)
         return (QueryResults(rlmSyncSubscriptionSet.subscription(withClassName: query.className, predicate: query.predicate)!,
