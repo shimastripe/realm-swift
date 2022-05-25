@@ -448,6 +448,7 @@ extension Projection: _ObservedResultsValue { }
         func setupValue() {
             if let configuration = configuration,
                configuration.syncConfiguration?.isFlexibleSync ?? false {
+#if swift(>=5.6) && canImport(_Concurrency)
                 Task {
                     do {
                         let realm = try await Realm(configuration: configuration)
@@ -463,6 +464,7 @@ extension Projection: _ObservedResultsValue { }
                         self.state = .error(error)
                     }
                 }
+#endif // swift(>=5.6)
             } else {
                 let realm = try! Realm(configuration: configuration ?? Realm.Configuration.defaultConfiguration)
                 value = realm.objects(ResultType.self)
@@ -673,7 +675,7 @@ extension ObservedResults {
     }
 
 }
-#endif // canImport(_Concurrency)
+#endif // swift(>=5.6)
 
 // MARK: ObservedRealmObject
 
