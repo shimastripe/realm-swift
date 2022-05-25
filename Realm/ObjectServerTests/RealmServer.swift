@@ -796,7 +796,7 @@ public class RealmServer: NSObject {
         } else {
             // This is a temporary workaround for not been able to add the complete schema for a flx App
             syncTypes = schema.objectSchema.filter {
-                let validSyncClasses = ["Dog", "Person", "SwiftPerson", "SwiftTypesSyncObject"]
+                let validSyncClasses = ["Dog", "Person", "SwiftPerson", "SwiftDog", "Bird"]
                 return validSyncClasses.contains($0.className)
             }
             partitionKeyType = nil

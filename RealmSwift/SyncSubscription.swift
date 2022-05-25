@@ -180,7 +180,7 @@ struct QuerySubscription<T: RealmFetchable> {
     public var count: Int { return Int(rlmSyncSubscriptionSet.count) }
 
     // MARK: Internal
-    
+
     /**
      Synchronously performs any transactions (add/remove/update) to the subscription set within the block.
      This will not wait for the server to acknowledge and see all the data associated with this collection of subscriptions,

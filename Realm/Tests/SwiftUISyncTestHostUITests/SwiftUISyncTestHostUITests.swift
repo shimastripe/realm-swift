@@ -602,9 +602,9 @@ class SwiftUIFlexibleSyncTestHostUITests: SwiftUISyncTestCases {
         var configuration = user.flexibleSyncConfiguration()
         configuration.objectTypes = [SwiftPerson.self, SwiftDog.self, Bird.self]
         let realm = try await Realm(configuration: configuration)
-        let _ = try await realm.objects(SwiftPerson.self)
-        let _ = try await realm.objects(SwiftDog.self)
-        let _ = try await realm.objects(Bird.self)
+         = try await realm.objects(SwiftPerson.self)
+        _ = try await realm.objects(SwiftDog.self)
+        _ = try await realm.objects(Bird.self)
         try realm.write {
             block(realm)
         }

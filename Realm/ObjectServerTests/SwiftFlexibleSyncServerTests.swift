@@ -77,7 +77,7 @@ extension SwiftFlexibleSyncTests {
         configuration.objectTypes = [SwiftPerson.self, SwiftDog.self, Bird.self]
         let realm = try await Realm(configuration: configuration)
 
-        let _ = try await realm.objects(type)
+        _ = try await realm.objects(type)
         try realm.write {
             block(realm)
         }

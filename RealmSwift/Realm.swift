@@ -1225,7 +1225,7 @@ extension Realm {
     }
 }
 
-#endif // swift(>=5.5)
+#endif // swift(>=5.6)
 
 /**
  Objects which can be feched from the Realm - Object or Projection

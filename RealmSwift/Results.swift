@@ -111,7 +111,7 @@ extension Projection: KeypathSortable {}
  */
 @frozen public struct Results<Element: RealmCollectionValue>: Equatable, RealmCollectionImpl {
     internal let collection: RLMCollection
-    fileprivate var subscription: SyncSubscription? = nil
+    fileprivate var subscription: SyncSubscription?
 
     /// A human-readable description of the objects represented by the results.
     public var description: String {
@@ -146,6 +146,7 @@ extension Projection: KeypathSortable {}
 
 extension Results: Encodable where Element: Encodable {}
 
+#if swift(>=5.6) && canImport(_Concurrency)
 @available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
 extension Results where Element: RealmFetchable {
     internal init(_ collection: RLMCollection,
@@ -194,3 +195,4 @@ extension Results where Element: RealmFetchable {
         }
     }
 }
+#endif // swift(>=5.6)
