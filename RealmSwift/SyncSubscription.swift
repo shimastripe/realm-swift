@@ -78,48 +78,6 @@ struct SyncSubscription {
     var updatedAt: Date {
         _rlmSyncSubscription.updatedAt
     }
-
-    /**
-     Updates a Flexible Sync's subscription with an allowed query which will be used to bootstrap data
-     from the server when committed.
-
-     - warning: This method may only be called during a write subscription block.
-
-     - parameter type: The type of the object to be queried.
-     - parameter query: A query which will be used to modify the query.
-     */
-    func update<T: Object>(toType type: T.Type, where query: @escaping (Query<T>) -> Query<Bool>) {
-        guard _rlmSyncSubscription.objectClassName == "\(T.self)" else {
-            throwRealmException("Updating a subscription query of a different Object Type is not allowed.")
-        }
-        _rlmSyncSubscription.update(with: query(Query()).predicate)
-    }
-
-    /**
-     Updates a Flexible Sync's subscription with an allowed query which will be used to bootstrap data
-     from the server when committed.
-
-     - warning: This method may only be called during a write subscription block.
-
-     - parameter predicateFormat: A predicate format string, optionally followed by a variable number of arguments,
-                                  which will be used to modify the query.
-     */
-    func update(to predicateFormat: String, _ args: Any...) {
-        _rlmSyncSubscription.update(with: NSPredicate(format: predicateFormat, argumentArray: unwrapOptionals(in: args)))
-    }
-
-    /**
-     Updates a Flexible Sync's subscription with an allowed query which will be used to bootstrap data
-     from the server when committed.
-
-     - warning: This method may only be called during a write subscription block.
-
-     - parameter predicate: The predicate with which to filter the objects on the server, which
-                            will be used to modify the query.
-     */
-    func update(to predicate: NSPredicate) {
-        _rlmSyncSubscription.update(with: predicate)
-    }
 }
 
 /**
@@ -136,7 +94,7 @@ struct QuerySubscription<T: RealmFetchable> {
 
      - parameter query: The query for the subscription. if nil it will set the query to all documents for the collection.
      */
-    public init(_ query: ((Query<T>) -> Query<Bool>)? = nil) {
+    init(_ query: ((Query<T>) -> Query<Bool>)? = nil) {
         self.className = "\(T.self)"
         self.predicate = query?(Query()).predicate ?? NSPredicate(format: "TRUEPREDICATE")
     }
@@ -147,7 +105,7 @@ struct QuerySubscription<T: RealmFetchable> {
      - parameter predicateFormat: A predicate format string, optionally followed by a variable number of arguments,
                                   which will be used to create the subscription.
      */
-    public init(_ predicateFormat: String, _ args: Any...) {
+    init(_ predicateFormat: String, _ args: Any...) {
         self.className = "\(T.self)"
         self.predicate = NSPredicate(format: predicateFormat, argumentArray: unwrapOptionals(in: args))
     }
@@ -157,7 +115,7 @@ struct QuerySubscription<T: RealmFetchable> {
 
      - parameter predicate: The predicate defining the query used to filter the objects on the server..
      */
-    public init(_ predicate: NSPredicate) {
+    init(_ predicate: NSPredicate) {
         self.className = "\(T.self)"
         self.predicate = predicate
     }

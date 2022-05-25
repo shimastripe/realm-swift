@@ -446,13 +446,12 @@ extension Projection: _ObservedResultsValue { }
         }
 
         func setupValue() {
-            /// A base value to reset the state of the query if a user reassigns the `filter` or `sortDescriptor`
             if let configuration = configuration,
                configuration.syncConfiguration?.isFlexibleSync ?? false {
                 Task {
                     do {
                         let realm = try await Realm(configuration: configuration)
-                        value = try await realm.objects(ResultType.self, filter: filter ?? `where` ?? nil)
+                        value = try await realm.objects(ResultType.self, filter: filter ?? `where` ?? NSPredicate(format: "TRUEPREDICATE"))
 
                         if let sortDescriptor = sortDescriptor {
                             value = value.sorted(byKeyPath: sortDescriptor.keyPath, ascending: sortDescriptor.ascending)
