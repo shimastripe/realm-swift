@@ -1216,8 +1216,12 @@ extension Realm {
 
 @available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
 extension Realm {
-    public func objects<Element: RealmFetchable>(_ type: Element.Type) async throws -> Results<Element> {
-        return try await Results(RLMGetObjects(rlmRealm, type.className(), nil))
+    public func objects<Element: RealmFetchable>(_ type: Element.Type, `where`: ((Query<Element>) -> Query<Bool>)? = nil) async throws -> Results<Element> {
+        return try await objects(type, filter: `where`?(Query()).predicate ?? nil)
+    }
+
+    public func objects<Element: RealmFetchable>(_ type: Element.Type, filter: NSPredicate?) async throws -> Results<Element> {
+        return try await Results(RLMGetObjects(rlmRealm, type.className(), filter), predicate: filter)
     }
 }
 

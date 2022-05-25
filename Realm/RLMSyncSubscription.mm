@@ -233,6 +233,7 @@ NSUInteger RLMFastEnumerate(NSFastEnumerationState *state,
 }
 
 - (void)write:(__attribute__((noescape)) void(^)(void))block
+        queue:(nullable dispatch_queue_t)queue
    onComplete:(void(^)(NSError *))completionBlock {
     if (_mutableSubscriptionSet != nil) {
         @throw RLMException(@"Cannot initiate a write transaction on subscription set that is already been updated.");
@@ -249,15 +250,42 @@ NSUInteger RLMFastEnumerate(NSFastEnumerationState *state,
         return completionBlock(err);
     }
     _subscriptionSet->get_state_change_notification(realm::sync::SubscriptionSet::State::Complete)
-        .get_async([completionBlock](realm::StatusWith<realm::sync::SubscriptionSet::State> state) mutable noexcept {
-            if (state.is_ok()) {
-                completionBlock(nil);
+        .get_async([completionBlock, queue](realm::StatusWith<realm::sync::SubscriptionSet::State> state) mutable noexcept {
+            void (^block)(void) = ^{
+                if (state.is_ok()) {
+                    completionBlock(nil);
+                } else {
+                    NSError* error = [[NSError alloc] initWithDomain:RLMFlexibleSyncErrorDomain code:state.get_status().code() userInfo:@{@"reason": @(state.get_status().reason().c_str())}];
+                    completionBlock(error);
+                }
+            };
+
+            if (queue) {
+                dispatch_async(queue, ^{
+                    block();
+                });
             } else {
-                NSError* error = [[NSError alloc] initWithDomain:RLMFlexibleSyncErrorDomain code:state.get_status().code() userInfo:@{@"reason": @(state.get_status().reason().c_str())}];
-                completionBlock(error);
+                block();
             }
         });
 }
+
+- (void)write:(__attribute__((noescape)) void(^)(void))block onComplete:(void(^)(NSError *))completionBlock {
+    [self write:block queue:nil onComplete:completionBlock];
+}
+
+- (void)waitForCompletion:(void(^)(NSError * _Nullable))block {
+     _subscriptionSet->get_state_change_notification(realm::sync::SubscriptionSet::State::Complete)
+         .get_async([block](realm::StatusWith<realm::sync::SubscriptionSet::State> state) mutable noexcept {
+         if (state.is_ok()) {
+             block(nil);
+         } else {
+             NSError* error = [[NSError alloc] initWithDomain:RLMFlexibleSyncErrorDomain code:state.get_status().code() userInfo:@{@"reason": @(state.get_status().reason().c_str())}];
+             block(error);
+         }
+     });
+ }
+
 
 #pragma mark - Find subscription
 
@@ -338,7 +366,7 @@ NSUInteger RLMFastEnumerate(NSFastEnumerationState *state,
     [self addSubscriptionWithClassName:objectClassName
                       subscriptionName:name
                              predicate:[NSPredicate predicateWithFormat:predicateFormat arguments:args]];
-    
+
 }
 
 - (void)addSubscriptionWithClassName:(NSString *)objectClassName
@@ -362,13 +390,13 @@ NSUInteger RLMFastEnumerate(NSFastEnumerationState *state,
                            predicate:(NSPredicate *)predicate
                       updateExisting:(BOOL)updateExisting {
     [self verifyInWriteTransaction];
-    
+
     RLMClassInfo& info = _realm->_info[objectClassName];
     auto query = RLMPredicateToQuery(predicate, info.rlmObjectSchema, _realm.schema, _realm.group);
-    
+
     if (name != nil) {
         auto iterator = _mutableSubscriptionSet->find([name UTF8String]);
-        
+
         if (updateExisting) {
             _mutableSubscriptionSet->insert_or_assign([name UTF8String], query);
         }
@@ -415,7 +443,7 @@ NSUInteger RLMFastEnumerate(NSFastEnumerationState *state,
 - (void)removeSubscriptionWithClassName:(NSString *)objectClassName
                               predicate:(NSPredicate *)predicate {
     [self verifyInWriteTransaction];
-    
+
     RLMClassInfo& info = _realm->_info[objectClassName];
     auto query = RLMPredicateToQuery(predicate, info.rlmObjectSchema, _realm.schema, _realm.group);
     auto iterator = _mutableSubscriptionSet->find(query);
@@ -445,7 +473,7 @@ NSUInteger RLMFastEnumerate(NSFastEnumerationState *state,
 
 - (void)removeAllSubscriptionsWithClassName:(NSString *)className {
     [self verifyInWriteTransaction];
-    
+
     for (auto it = _mutableSubscriptionSet->begin(); it != _mutableSubscriptionSet->end();) {
         if (it->object_class_name() == [className UTF8String]) {
             it = _mutableSubscriptionSet->erase(it);
@@ -472,7 +500,7 @@ NSUInteger RLMFastEnumerate(NSFastEnumerationState *state,
         @throw RLMException(@"Index %llu is out of bounds (must be less than %llu).",
                             (unsigned long long)index, (unsigned long long)size);
     }
-    
+
     return [[RLMSyncSubscription alloc]initWithSubscription:_subscriptionSet->at(size_t(index))
                                             subscriptionSet:self];
 }
@@ -489,7 +517,7 @@ NSUInteger RLMFastEnumerate(NSFastEnumerationState *state,
     if (_subscriptionSet->size() < 1) {
         return nil;
     }
-    
+
     return [[RLMSyncSubscription alloc]initWithSubscription:_subscriptionSet->at(_subscriptionSet->size()-1)
                                             subscriptionSet:self];
 }
@@ -510,18 +538,6 @@ NSUInteger RLMFastEnumerate(NSFastEnumerationState *state,
     if (_mutableSubscriptionSet == nil) {
         @throw RLMException(@"Can only add, remove, or update subscriptions within a write subscription block.");
     }
-}
-
-- (void)waitForCompletion:(void(^)(NSError * _Nullable))block {
-    _subscriptionSet->get_state_change_notification(realm::sync::SubscriptionSet::State::Complete)
-        .get_async([block](realm::StatusWith<realm::sync::SubscriptionSet::State> state) mutable noexcept {
-        if (state.is_ok()) {
-            block(nil);
-        } else {
-            NSError* error = [[NSError alloc] initWithDomain:RLMFlexibleSyncErrorDomain code:state.get_status().code() userInfo:@{@"reason": @(state.get_status().reason().c_str())}];
-            block(error);
-        }
-    });
 }
 
 @end

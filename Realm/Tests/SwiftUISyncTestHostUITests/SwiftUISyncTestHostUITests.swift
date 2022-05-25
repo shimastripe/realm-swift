@@ -15,13 +15,14 @@
 // limitations under the License.
 //
 ////////////////////////////////////////////////////////////////////////////
-
 import XCTest
 import RealmSwift
+import Realm
 
-class SwiftUISyncTestHostUITests: XCTestCase {
+class SwiftUISyncTestCases: XCTestCase {
     // Create App only once
     static var appId: String?
+    static var flexibleSyncAppId: String?
 
     // App Runner Directory
     var clientDataRoot: URL {
@@ -35,49 +36,30 @@ class SwiftUISyncTestHostUITests: XCTestCase {
     }
 
     // App Info
-    private var appId: String? {
+    fileprivate var appId: String? {
         SwiftUISyncTestHostUITests.appId
     }
-    private var app: App?
+    fileprivate var app: App?
+
+    // Flexible Sync
+    fileprivate var flexibleSyncAppId: String? {
+        SwiftUISyncTestHostUITests.flexibleSyncAppId
+    }
+    fileprivate var flexibleSyncApp: App?
 
     // User Info
-    private var username1 = ""
-    private var username2 = ""
-    private let password = "password"
+    fileprivate var username1 = ""
+    fileprivate var username2 = ""
+    fileprivate let password = "password"
 
     // Application
-    private let application = XCUIApplication()
+    fileprivate let application = XCUIApplication()
 
     // MARK: - Test Lifecycle
     override class func setUp() {
         super.setUp()
         if RealmServer.haveServer() {
             _ = RealmServer.shared
-        }
-    }
-
-    override func setUp() {
-        super.setUp()
-        continueAfterFailure = false
-
-        try? FileManager.default.createDirectory(at: clientDataRoot, withIntermediateDirectories: true)
-        try? FileManager.default.createDirectory(at: appClientDataRoot, withIntermediateDirectories: true)
-
-        // Create App once for this Test Suite
-        if SwiftUISyncTestHostUITests.appId == nil {
-            do {
-                let appId = try RealmServer.shared.createApp()
-                SwiftUISyncTestHostUITests.appId = appId
-            } catch {
-                XCTFail("Cannot initialise test without a creating an App on the server")
-            }
-        }
-
-        // Instantiate App from appId after
-        do {
-            app = try getApp()
-        } catch {
-            print("Error creating user \(error)")
         }
     }
 
@@ -96,21 +78,6 @@ class SwiftUISyncTestHostUITests: XCTestCase {
             XCTFail("Error reseting application data")
         }
         super.tearDown()
-    }
-}
-
-// MARK: -
-extension SwiftUISyncTestHostUITests {
-    private func getApp() throws -> App {
-        super.setUp()
-        // Setup App for Testing
-        let appConfiguration = RLMAppConfiguration(baseURL: "http://localhost:9090",
-                                                   transport: nil,
-                                                   localAppName: nil,
-                                                   localAppVersion: nil,
-                                                   defaultRequestTimeoutMS: 60)
-        // Create app in current process
-        return App(id: appId!, configuration: appConfiguration, rootDirectory: clientDataRoot)
     }
 
     private func resetSyncManager() {
@@ -142,39 +109,29 @@ extension SwiftUISyncTestHostUITests {
             wait(for: exArray, timeout: 60.0)
         }
     }
+}
 
-    private func createUsers(email: String, password: String, n: Int) throws -> User {
-        let user = try registerAndLoginUser(email: email, password: password)
-        let config = user.configuration(partitionValue: user.id)
-        let realm = try openRealm(configuration: config, for: user)
-        try realm.write {
-            (1...n).forEach { _ in
-                realm.add(SwiftPerson(firstName: randomString(7), lastName: randomString(7)))
-            }
-        }
-        user.waitForUpload(toFinish: user.id)
-        return user
+// MARK: -
+extension SwiftUISyncTestCases {
+    fileprivate func registerAndLoginUser(email: String, password: String, for app: App) throws -> User {
+        try registerUser(email: email, password: password, for: app)
+        return try loginUser(email: email, password: password, for: app)
     }
 
-    private func registerAndLoginUser(email: String, password: String) throws -> User {
-        try registerUser(email: email, password: password)
-        return try loginUser(email: email, password: password)
-    }
-
-    private func registerUser(email: String, password: String) throws {
+    fileprivate func registerUser(email: String, password: String, for app: App) throws {
         let ex = expectation(description: "Should register in the user properly")
-        app!.emailPasswordAuth.registerUser(email: email, password: password, completion: { error in
+        app.emailPasswordAuth.registerUser(email: email, password: password, completion: { error in
             XCTAssertNil(error)
             ex.fulfill()
         })
         waitForExpectations(timeout: 4, handler: nil)
     }
 
-    private func loginUser(email: String, password: String) throws -> User {
+    fileprivate func loginUser(email: String, password: String, for app: App) throws -> User {
         var syncUser: User!
         let ex = expectation(description: "Should log in the user properly")
         let credentials = Credentials.emailPassword(email: email, password: password)
-        app!.login(credentials: credentials) { result in
+        app.login(credentials: credentials) { result in
             switch result {
             case .success(let user):
                 syncUser = user
@@ -189,7 +146,7 @@ extension SwiftUISyncTestHostUITests {
         return syncUser
     }
 
-    private func openRealm(configuration: Realm.Configuration, for user: User) throws -> Realm {
+    fileprivate func openRealm(configuration: Realm.Configuration, for user: User) throws -> Realm {
         var configuration = configuration
         if configuration.objectTypes == nil {
             configuration.objectTypes = [SwiftPerson.self]
@@ -200,11 +157,13 @@ extension SwiftUISyncTestHostUITests {
     }
 
     // Login for given email and password
-    enum UserType: Int {
+    fileprivate enum UserType: Int {
         case first = 1
         case second = 2
+        case anonymous = 3
+
     }
-    private func loginUser(_ type: UserType) {
+    fileprivate func loginUser(_ type: UserType) {
         let loginButton = application.buttons["login_button_\(type.rawValue)"]
         XCTAssertTrue(loginButton.waitForExistence(timeout: 2))
         loginButton.tap()
@@ -213,7 +172,7 @@ extension SwiftUISyncTestHostUITests {
         XCTAssertTrue(loggingView.waitForExistence(timeout: 2))
     }
 
-    private func asyncOpen() {
+    fileprivate func loginAndAsync() {
         loginUser(.first)
 
         // Query for button to start syncing
@@ -222,15 +181,66 @@ extension SwiftUISyncTestHostUITests {
         syncButtonView.tap()
     }
 
-    func logoutAllUsers() {
+    fileprivate func logoutAllUsers() {
         let loginButton = application.buttons["logout_users_button"]
         XCTAssertTrue(loginButton.waitForExistence(timeout: 2))
         loginButton.tap()
     }
 
-    public func randomString(_ length: Int) -> String {
+    fileprivate func randomString(_ length: Int) -> String {
         let letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
         return String((0..<length).map { _ in letters.randomElement()! })
+    }
+}
+
+class SwiftUISyncTestHostUITests: SwiftUISyncTestCases {
+    override func setUp() {
+        super.setUp()
+        continueAfterFailure = false
+
+        try? FileManager.default.createDirectory(at: clientDataRoot, withIntermediateDirectories: true)
+        try? FileManager.default.createDirectory(at: appClientDataRoot, withIntermediateDirectories: true)
+
+        // Create App once for this Test Suite
+        if SwiftUISyncTestHostUITests.appId == nil {
+            do {
+                let appId = try RealmServer.shared.createApp()
+                SwiftUISyncTestHostUITests.appId = appId
+            } catch {
+                XCTFail("Cannot initialise test without a creating an App on the server")
+            }
+        }
+
+        // Instantiate App from appId after
+        do {
+            app = try getApp()
+        } catch {
+            print("Error creating user \(error)")
+        }
+    }
+
+    private func getApp() throws -> App {
+        // Setup App for Testing
+        let appConfiguration = RLMAppConfiguration(baseURL: "http://localhost:9090",
+                                                   transport: nil,
+                                                   localAppName: nil,
+                                                   localAppVersion: nil,
+                                                   defaultRequestTimeoutMS: 60)
+        // Create app in current process
+        return App(id: appId!, configuration: appConfiguration, rootDirectory: clientDataRoot)
+    }
+
+    private func createUsers(email: String, password: String, n: Int) throws -> User {
+        let user = try registerAndLoginUser(email: email, password: password, for: app!)
+        let config = user.configuration(partitionValue: user.id)
+        let realm = try openRealm(configuration: config, for: user)
+        try realm.write {
+            (1...n).forEach { _ in
+                realm.add(SwiftPerson(firstName: randomString(7), lastName: randomString(7)))
+            }
+        }
+        user.waitForUpload(toFinish: user.id)
+        return user
     }
 }
 
@@ -247,7 +257,7 @@ extension SwiftUISyncTestHostUITests {
         application.launchEnvironment["partition_value"] = user.id
         application.launch()
 
-        asyncOpen()
+        loginAndAsync()
 
         // Test progress is greater than 0
         let progressView = application.staticTexts["progress_text_view"]
@@ -275,7 +285,7 @@ extension SwiftUISyncTestHostUITests {
         application.launchEnvironment["app_id"] = appId
         application.launch()
 
-        asyncOpen()
+        loginAndAsync()
 
         // Test show ListView after syncing realm
         let table = application.tables.firstMatch
@@ -293,7 +303,7 @@ extension SwiftUISyncTestHostUITests {
         application.launchEnvironment["app_id"] = appId
         application.launch()
 
-        asyncOpen()
+        loginAndAsync()
 
         // Test show ListView after syncing realm
         let table = application.tables.firstMatch
@@ -308,14 +318,14 @@ extension SwiftUISyncTestHostUITests {
         let email = "realm_tests_do_autoverify\(randomString(7))@\(randomString(7)).com"
         let email2 = "realm_tests_do_autoverify\(randomString(7))@\(randomString(7)).com"
 
-        let user1 = try registerAndLoginUser(email: email, password: password)
-        let user2 = try registerAndLoginUser(email: email2, password: password)
+        let user1 = try registerAndLoginUser(email: email, password: password, for: app!)
+        let user2 = try registerAndLoginUser(email: email2, password: password, for: app!)
 
         let config1 = user1.configuration(partitionValue: partitionValue)
         let config2 = user2.configuration(partitionValue: partitionValue)
 
         let realm = try Realm(configuration: config1)
-        try! realm.write {
+        try realm.write {
             realm.add(SwiftPerson(firstName: "Joe", lastName: "Blogs"))
             realm.add(SwiftPerson(firstName: "Jane", lastName: "Doe"))
         }
@@ -329,7 +339,7 @@ extension SwiftUISyncTestHostUITests {
         application.launchEnvironment["app_id"] = appId
         application.launch()
 
-        asyncOpen()
+        loginAndAsync()
 
         // Test show ListView after syncing realm
         let table = application.tables.firstMatch
@@ -378,7 +388,7 @@ extension SwiftUISyncTestHostUITests {
         application.launchEnvironment["app_id"] = appId
         application.launch()
 
-        asyncOpen()
+        loginAndAsync()
 
         // Test show ListView after syncing realm
         let table = application.tables.firstMatch
@@ -407,7 +417,7 @@ extension SwiftUISyncTestHostUITests {
         application.launchEnvironment["app_id"] = appId
         application.launch()
 
-        asyncOpen()
+        loginAndAsync()
 
         // Test show ListView after syncing realm
         let table = application.tables.firstMatch
@@ -437,7 +447,7 @@ extension SwiftUISyncTestHostUITests {
         application.launch()
 
         // Test that the user is already logged in
-        asyncOpen()
+        loginAndAsync()
 
         // Test progress is greater than 0
         let progressView = application.staticTexts["progress_text_view"]
@@ -465,7 +475,7 @@ extension SwiftUISyncTestHostUITests {
         application.launchEnvironment["app_id"] = appId
         application.launch()
 
-        asyncOpen()
+        loginAndAsync()
 
         // Test show ListView after syncing realm
         let table = application.tables.firstMatch
@@ -483,7 +493,7 @@ extension SwiftUISyncTestHostUITests {
         application.launchEnvironment["app_id"] = appId
         application.launch()
 
-        asyncOpen()
+        loginAndAsync()
 
         // Test show ListView after syncing realm
         let table = application.tables.firstMatch
@@ -504,7 +514,7 @@ extension SwiftUISyncTestHostUITests {
         application.launchEnvironment["app_id"] = appId
         application.launch()
 
-        asyncOpen()
+        loginAndAsync()
 
         // Test show ListView after syncing realm
         let table = application.tables.firstMatch
@@ -533,7 +543,7 @@ extension SwiftUISyncTestHostUITests {
         application.launchEnvironment["app_id"] = appId
         application.launch()
 
-        asyncOpen()
+        loginAndAsync()
 
         // Test show ListView after syncing realm
         let table = application.tables.firstMatch
@@ -546,5 +556,156 @@ extension SwiftUISyncTestHostUITests {
 
         let waitingUserView = application.staticTexts["waiting_user_view"]
         XCTAssertTrue(waitingUserView.waitForExistence(timeout: 2))
+    }
+}
+
+@available(macOS 12.0.0, *)
+class SwiftUIFlexibleSyncTestHostUITests: SwiftUISyncTestCases {
+    override func setUp() {
+        continueAfterFailure = false
+
+        try? FileManager.default.createDirectory(at: clientDataRoot, withIntermediateDirectories: true)
+        try? FileManager.default.createDirectory(at: appClientDataRoot, withIntermediateDirectories: true)
+
+        // Create App once for this Test Suite
+        if SwiftUISyncTestHostUITests.flexibleSyncAppId == nil {
+            do {
+                let appId = try RealmServer.shared.createAppWithQueryableFields(["age", "firstName"])
+                SwiftUISyncTestHostUITests.flexibleSyncAppId = appId
+            } catch {
+                XCTFail("Cannot initialise test without a creating an App on the server")
+            }
+        }
+
+        // Instantiate App from appId after
+        do {
+            flexibleSyncApp = try getApp()
+        } catch {
+            print("Error creating user \(error)")
+        }
+    }
+
+    private func getApp() throws -> App {
+        // Setup App for Testing
+        let appConfiguration = RLMAppConfiguration(baseURL: "http://localhost:9090",
+                                                   transport: nil,
+                                                   localAppName: nil,
+                                                   localAppVersion: nil,
+                                                   defaultRequestTimeoutMS: 60)
+        // Create app in current process
+        return App(id: flexibleSyncAppId!, configuration: appConfiguration, rootDirectory: clientDataRoot)
+    }
+
+    @MainActor
+    private func populateFlexibleSyncData(_ block: @escaping (Realm) -> Void) async throws {
+        let user = try await self.flexibleSyncApp!.login(credentials: .anonymous)
+        var configuration = user.flexibleSyncConfiguration()
+        configuration.objectTypes = [SwiftPerson.self, SwiftDog.self, Bird.self]
+        let realm = try await Realm(configuration: configuration)
+        let _ = try await realm.objects(SwiftPerson.self)
+        let _ = try await realm.objects(SwiftDog.self)
+        let _ = try await realm.objects(Bird.self)
+        try realm.write {
+            block(realm)
+        }
+        try user.waitForUploads(in: realm)
+    }
+
+    func testObservedQueryResultsState() async throws {
+        try await populateFlexibleSyncData { realm in
+            for i in 1...21 {
+                let person = SwiftPerson(firstName: "\(#function)",
+                                         lastName: "lastname_\(i)",
+                                         age: i)
+                realm.add(person)
+            }
+        }
+
+        application.launchEnvironment["async_view_type"] = "flexible_sync_observed_query_results_state"
+        application.launchEnvironment["app_id"] = flexibleSyncAppId
+        application.launchEnvironment["firstName"] = "\(#function)"
+        application.launch()
+
+        loginUser(.anonymous)
+
+        // Query for button to start syncing
+        let syncButtonView = application.buttons["flexible_sync_button"]
+        XCTAssertTrue(syncButtonView.waitForExistence(timeout: 2))
+        syncButtonView.tap()
+
+        // Test show ListView after syncing realm
+        let table = application.tables.firstMatch
+        XCTAssertTrue(table.waitForExistence(timeout: 10))
+        XCTAssertEqual(table.cells.count, 3)
+
+        try await populateFlexibleSyncData { realm in
+            for i in 22...30 {
+                let person = SwiftPerson(firstName: "\(#function)",
+                                         lastName: "lastname_\(i)",
+                                         age: i)
+                realm.add(person)
+            }
+        }
+
+        XCTAssertTrue(table.waitForExistence(timeout: 6))
+        XCTAssertEqual(table.cells.count, 12)
+
+        // Query for button to unsubscribe from query
+        let unsubscribeButtonView = application.buttons["unsubscribe_button"]
+        XCTAssertTrue(unsubscribeButtonView.waitForExistence(timeout: 2))
+        unsubscribeButtonView.tap()
+
+        XCTAssertTrue(table.waitForExistence(timeout: 6))
+        XCTAssertEqual(table.cells.count, 0)
+    }
+
+    func testObservedQueryResults() async throws {
+        try await populateFlexibleSyncData { realm in
+            for i in 1...21 {
+                let person = SwiftPerson(firstName: "\(#function)",
+                                         lastName: "lastname_\(i)",
+                                         age: i)
+                realm.add(person)
+            }
+        }
+
+        application.launchEnvironment["async_view_type"] = "flexible_sync_observed_query_results"
+        application.launchEnvironment["app_id"] = flexibleSyncAppId
+        application.launchEnvironment["firstName"] = "\(#function)"
+        application.launch()
+
+        loginUser(.anonymous)
+
+        // Query for button to start syncing
+        let syncButtonView = application.buttons["flexible_sync_button"]
+        XCTAssertTrue(syncButtonView.waitForExistence(timeout: 2))
+        syncButtonView.tap()
+
+        // Test show ListView after syncing realm
+        let table = application.tables.firstMatch
+        XCTAssertTrue(table.waitForExistence(timeout: 10))
+        XCTAssertEqual(table.cells.count, 7)
+
+        try await populateFlexibleSyncData { realm in
+            for i in 22...30 {
+                let person = SwiftPerson(firstName: "\(#function)",
+                                         lastName: "lastname_\(i)",
+                                         age: i)
+                realm.add(person)
+            }
+        }
+
+        XCTAssertTrue(table.waitForExistence(timeout: 6))
+        XCTAssertEqual(table.cells.count, 16)
+    }
+}
+
+extension User {
+    func waitForUploads(in realm: Realm) throws {
+        try waitForUploads(for: ObjectiveCSupport.convert(object: realm))
+    }
+
+    func waitForDownloads(in realm: Realm) throws {
+        try waitForDownloads(for: ObjectiveCSupport.convert(object: realm))
     }
 }

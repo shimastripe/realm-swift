@@ -54,7 +54,8 @@ import Realm.Private
  `SyncSubscription` is  used to define a Flexible Sync subscription obtained from querying a
  subscription set, which can be used to read or remove/update a committed subscription.
  */
-@frozen public struct SyncSubscription {
+@usableFromInline
+struct SyncSubscription {
 
     // MARK: Initializers
     fileprivate let _rlmSyncSubscription: RLMSyncSubscription
@@ -64,17 +65,17 @@ import Realm.Private
     }
 
     /// Name of the subscription, if not specified it will return the value in Query as a String.
-    public var name: String? {
+    var name: String? {
         _rlmSyncSubscription.name
     }
 
     /// When the subscription was created. Recorded automatically.
-    public var createdAt: Date {
+    var createdAt: Date {
         _rlmSyncSubscription.createdAt
     }
 
     /// When the subscription was last updated. Recorded automatically.
-    public var updatedAt: Date {
+    var updatedAt: Date {
         _rlmSyncSubscription.updatedAt
     }
 
@@ -87,7 +88,7 @@ import Realm.Private
      - parameter type: The type of the object to be queried.
      - parameter query: A query which will be used to modify the query.
      */
-    public func update<T: Object>(toType type: T.Type, where query: @escaping (Query<T>) -> Query<Bool>) {
+    func update<T: Object>(toType type: T.Type, where query: @escaping (Query<T>) -> Query<Bool>) {
         guard _rlmSyncSubscription.objectClassName == "\(T.self)" else {
             throwRealmException("Updating a subscription query of a different Object Type is not allowed.")
         }
@@ -99,11 +100,11 @@ import Realm.Private
      from the server when committed.
 
      - warning: This method may only be called during a write subscription block.
-     
+
      - parameter predicateFormat: A predicate format string, optionally followed by a variable number of arguments,
                                   which will be used to modify the query.
      */
-    public func update(to predicateFormat: String, _ args: Any...) {
+    func update(to predicateFormat: String, _ args: Any...) {
         _rlmSyncSubscription.update(with: NSPredicate(format: predicateFormat, argumentArray: unwrapOptionals(in: args)))
     }
 
@@ -116,7 +117,7 @@ import Realm.Private
      - parameter predicate: The predicate with which to filter the objects on the server, which
                             will be used to modify the query.
      */
-    public func update(to predicate: NSPredicate) {
+    func update(to predicate: NSPredicate) {
         _rlmSyncSubscription.update(with: predicate)
     }
 }
@@ -125,36 +126,28 @@ import Realm.Private
  `SubscriptionQuery` is  used to define an named/unnamed query subscription query, which
  can be added/remove or updated within a write subscription transaction.
  */
-@frozen public struct QuerySubscription<T: Object> {
+struct QuerySubscription<T: RealmFetchable> {
     // MARK: Internal
-    fileprivate let name: String?
-    fileprivate var className: String
-    fileprivate var predicate: NSPredicate
-
-    /// :nodoc:
-    public typealias QueryFunction = (Query<T>) -> Query<Bool>
+    internal var className: String
+    internal var predicate: NSPredicate
 
     /**
      Creates a `QuerySubscription` for the given type.
 
-     - parameter name: Name of the subscription.
-     - parameter query: The query for the subscription.
+     - parameter query: The query for the subscription. if nil it will set the query to all documents for the collection.
      */
-    public init(name: String? = nil, query: @escaping QueryFunction) {
-        self.name = name
+    public init(_ query: ((Query<T>) -> Query<Bool>)? = nil) {
         self.className = "\(T.self)"
-        self.predicate = query(Query()).predicate
+        self.predicate = query?(Query()).predicate ?? NSPredicate(format: "TRUEPREDICATE")
     }
 
     /**
      Creates a `QuerySubscription` for the given type.
 
-     - parameter name: Name of the subscription.
      - parameter predicateFormat: A predicate format string, optionally followed by a variable number of arguments,
                                   which will be used to create the subscription.
      */
-    public init(name: String? = nil, where predicateFormat: String, _ args: Any...) {
-        self.name = name
+    public init(_ predicateFormat: String, _ args: Any...) {
         self.className = "\(T.self)"
         self.predicate = NSPredicate(format: predicateFormat, argumentArray: unwrapOptionals(in: args))
     }
@@ -162,11 +155,9 @@ import Realm.Private
     /**
      Creates a `QuerySubscription` for the given type.
 
-     - parameter name: Name of the subscription.
      - parameter predicate: The predicate defining the query used to filter the objects on the server..
      */
-    public init(name: String? = nil, where predicate: NSPredicate) {
-        self.name = name
+    public init(_ predicate: NSPredicate) {
         self.className = "\(T.self)"
         self.predicate = predicate
     }
@@ -177,9 +168,7 @@ import Realm.Private
  for adding and removing `SyncSubscription`s.
  */
 @frozen public struct SyncSubscriptionSet {
-    // MARK: Internal
-
-    internal let rlmSyncSubscriptionSet: RLMSyncSubscriptionSet
+    private let rlmSyncSubscriptionSet: RLMSyncSubscriptionSet
 
     // MARK: Initializers
 
@@ -190,6 +179,8 @@ import Realm.Private
     /// The number of subscriptions in the subscription set.
     public var count: Int { return Int(rlmSyncSubscriptionSet.count) }
 
+    // MARK: Internal
+    
     /**
      Synchronously performs any transactions (add/remove/update) to the subscription set within the block.
      This will not wait for the server to acknowledge and see all the data associated with this collection of subscriptions,
@@ -199,12 +190,12 @@ import Realm.Private
      - parameter onComplete: The block called upon synchronization of subscriptions to the server. Otherwise
                              an `Error`describing what went wrong will be returned by the block
      */
-    public func write(_ block: (() -> Void), onComplete: ((Error?) -> Void)? = nil) {
-        rlmSyncSubscriptionSet.write(block, onComplete: onComplete ?? { _ in })
+    internal func write(_ block: (() -> Void), queue: DispatchQueue? = nil, onComplete: ((Error?) -> Void)? = nil) {
+        rlmSyncSubscriptionSet.write(block, queue: queue, onComplete: onComplete ?? { _ in })
     }
 
     /// Returns the current state for the subscription set.
-    public var state: SyncSubscriptionState {
+    internal var state: SyncSubscriptionState {
         switch rlmSyncSubscriptionSet.state {
         case .pending:
             return .pending
@@ -220,16 +211,6 @@ import Realm.Private
     }
 
     /**
-     Returns a subscription by the specified name.
-
-     - parameter named: The name of the subscription searching for.
-     - returns: A subscription for the given name.
-     */
-    public func first(named: String) -> SyncSubscription? {
-        return rlmSyncSubscriptionSet.subscription(withName: named).map(SyncSubscription.init)
-    }
-
-    /**
      Returns a subscription by the specified query.
 
      - parameter type: The type of the object to be queried.
@@ -237,31 +218,7 @@ import Realm.Private
                         the subscription by query and/or name.
      - returns: A query builder that produces a subscription which can used to search for the subscription.
      */
-    public func first<T: RealmCollectionValue>(ofType type: T.Type, `where` query: @escaping (Query<T>) -> Query<Bool>) -> SyncSubscription? {
-        return rlmSyncSubscriptionSet.subscription(withClassName: "\(T.self)", predicate: query(Query()).predicate).map(SyncSubscription.init)
-    }
-
-    /**
-     Returns a subscription by the specified query.
-
-     - parameter type: The type of the object to be queried.
-     - parameter where: A query builder that produces a subscription which can be used to search
-                        the subscription by query and/or name.
-     - returns: A query builder that produces a subscription which can used to search for the subscription.
-     */
-    public func first<T: RealmCollectionValue>(ofType type: T.Type, `where` predicateFormat: String, _ args: Any...) -> SyncSubscription? {
-        return rlmSyncSubscriptionSet.subscription(withClassName: "\(T.self)", predicate: NSPredicate(format: predicateFormat, argumentArray: unwrapOptionals(in: args))).map(SyncSubscription.init)
-    }
-
-    /**
-     Returns a subscription by the specified query.
-
-     - parameter type: The type of the object to be queried.
-     - parameter where: A query builder that produces a subscription which can be used to search
-                        the subscription by query and/or name.
-     - returns: A query builder that produces a subscription which can used to search for the subscription.
-     */
-    public func first<T: RealmCollectionValue>(ofType type: T.Type, `where` predicate: NSPredicate) -> SyncSubscription? {
+    internal func first<T: RealmCollectionValue>(ofType type: T.Type, `where` predicate: NSPredicate) -> SyncSubscription? {
         return rlmSyncSubscriptionSet.subscription(withClassName: "\(T.self)", predicate: predicate).map(SyncSubscription.init)
     }
 
@@ -272,52 +229,11 @@ import Realm.Private
 
      - parameter subscriptions: The subscriptions to be added to the subscription set.
      */
-    public func `append`<T: Object>(_ subscriptions: QuerySubscription<T>...) {
+    internal func `append`<T: RealmFetchable>(_ subscriptions: QuerySubscription<T>...) {
         subscriptions.forEach { subscription in
             rlmSyncSubscriptionSet.addSubscription(withClassName: subscription.className,
-                                                   subscriptionName: subscription.name,
                                                    predicate: subscription.predicate)
         }
-    }
-
-    /**
-     Removes a subscription with the specified query.
-
-     - warning: This method may only be called during a write subscription block.
-
-     - parameter type: The type of the object to be removed.
-     - parameter to: A query for the subscription to be removed from the subscription set.
-     */
-    public func remove<T: Object>(ofType type: T.Type, _ query: @escaping (Query<T>) -> Query<Bool>) {
-        rlmSyncSubscriptionSet.removeSubscription(withClassName: "\(T.self)",
-                                                  predicate: query(Query()).predicate)
-    }
-
-    /**
-     Removes a subscription with the specified query.
-
-     - warning: This method may only be called during a write subscription block.
-
-     - parameter type: The type of the object to be removed.
-     - parameter predicateFormat: A predicate format string, optionally followed by a variable number of arguments,
-                                  which will be used to identify the subscription to be removed.
-     */
-    public func remove<T: Object>(ofType type: T.Type, where predicateFormat: String, _ args: Any...) {
-        rlmSyncSubscriptionSet.removeSubscription(withClassName: "\(T.self)",
-                                                  predicate: NSPredicate(format: predicateFormat, argumentArray: unwrapOptionals(in: args)))
-    }
-
-    /**
-     Removes a subscription with the specified query.
-
-     - warning: This method may only be called during a write subscription block.
-
-     - parameter type: The type of the object to be removed.
-     - parameter predicate: The predicate which will be used to identify the subscription to be removed.
-     */
-    public func remove<T: Object>(ofType type: T.Type, where predicate: NSPredicate) {
-        rlmSyncSubscriptionSet.removeSubscription(withClassName: "\(T.self)",
-                                                  predicate: predicate)
     }
 
     /**
@@ -327,101 +243,10 @@ import Realm.Private
 
      - parameter subscription: The subscription to be removed from the subscription set.
      */
-    public func remove(_ subscriptions: SyncSubscription...) {
+    internal func remove(_ subscriptions: SyncSubscription...) {
         subscriptions.forEach { subscription in
             rlmSyncSubscriptionSet.remove(subscription._rlmSyncSubscription)
         }
-    }
-
-    /**
-     Removes a subscription with the specified name from the subscription set.
-
-     - warning: This method may only be called during a write subscription block.
-
-     - parameter named: The name of the subscription to be removed from the subscription set.
-     */
-    public func remove(named: String) {
-        rlmSyncSubscriptionSet.removeSubscription(withName: named)
-    }
-
-    /**
-     Removes all subscriptions from the subscription set.
-
-     - warning: This method may only be called during a write subscription block.
-     - warning: Removing all subscriptions will result in an error if no new subscription is added. Server should
-                acknowledge at least one subscription.
-     */
-    public func removeAll() {
-        rlmSyncSubscriptionSet.removeAllSubscriptions()
-    }
-
-    /**
-     Removes zero or none subscriptions of the given type from the subscription set.
-
-     - warning: This method may only be called during a write subscription block.
-
-     - parameter type: The type of the objects to be removed.
-     */
-    public func removeAll<T: Object>(ofType type: T.Type) {
-        rlmSyncSubscriptionSet.removeAllSubscriptions(withClassName: type.className())
-    }
-
-    // MARK: Subscription Retrieval
-
-    /**
-     Returns the subscription at the given `position`.
-
-     - parameter position: The index for the resulting subscription.
-     */
-    public subscript(position: Int) -> SyncSubscription? {
-        throwForNegativeIndex(position)
-        return rlmSyncSubscriptionSet.object(at: UInt(position)).map { SyncSubscription($0) }
-    }
-
-    /// Returns the first object in the SyncSubscription list, or `nil` if the subscriptions are empty.
-    public var first: SyncSubscription? {
-        return rlmSyncSubscriptionSet.firstObject().map { SyncSubscription($0) }
-    }
-
-    /// Returns the last object in the SyncSubscription list, or `nil` if the subscriptions are empty.
-    public var last: SyncSubscription? {
-        return rlmSyncSubscriptionSet.lastObject().map { SyncSubscription($0) }
-    }
-}
-
-extension SyncSubscriptionSet: Sequence {
-    // MARK: Sequence Support
-
-    /// Returns a `SyncSubscriptionSetIterator` that yields successive elements in the subscription collection.
-    public func makeIterator() -> SyncSubscriptionSetIterator {
-        return SyncSubscriptionSetIterator(rlmSyncSubscriptionSet)
-    }
-}
-
-/**
- This struct enables sequence-style enumeration for `SyncSubscriptionSet`.
- */
-@frozen public struct SyncSubscriptionSetIterator: IteratorProtocol {
-    private let rlmSubscriptionSet: RLMSyncSubscriptionSet
-    private var index: Int = -1
-
-    init(_ rlmSubscriptionSet: RLMSyncSubscriptionSet) {
-        self.rlmSubscriptionSet = rlmSubscriptionSet
-    }
-
-    private func nextIndex(for index: Int?) -> Int? {
-        if let index = index, index < self.rlmSubscriptionSet.count - 1 {
-            return index + 1
-        }
-        return nil
-    }
-
-    mutating public func next() -> RLMSyncSubscription? {
-        if let index = self.nextIndex(for: self.index) {
-            self.index = index
-            return rlmSubscriptionSet.object(at: UInt(index))
-        }
-        return nil
     }
 }
 
@@ -439,7 +264,7 @@ extension SyncSubscriptionSet {
                If `block` throws, the function throws the propagated `ErrorType` instead.
      */
     @MainActor
-    public func write(_ block: (() -> Void)) async throws {
+    internal func write(_ block: (() -> Void)) async throws {
         try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
             write(block) { error in
                 if let error = error {
@@ -450,5 +275,25 @@ extension SyncSubscriptionSet {
             }
         }
     }
+
+    /**
+    Removes all subscriptions from the subscription set.
+    */
+   public func unsubscribeAll() async throws {
+       try await write {
+           rlmSyncSubscriptionSet.removeAllSubscriptions()
+       }
+   }
+
+   /**
+    Removes zero or none subscriptions of the given type from the subscription set.
+
+    - parameter type: The type of the subscriptions to be removed.
+    */
+   public func unsubscribeAll<T: Object>(ofType type: T.Type) async throws {
+       try await write {
+           rlmSyncSubscriptionSet.removeAllSubscriptions(withClassName: type.className())
+       }
+   }
 }
 #endif // swift(>=5.6)

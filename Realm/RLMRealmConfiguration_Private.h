@@ -31,8 +31,6 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, copy) NSString *pathOnDisk;
 @property (nonatomic, retain, nullable) RLMEventConfiguration *eventConfiguration;
 
-@property (nonatomic, readonly) bool isFlexibleSyncConfiguration;
-
 // Get the default confiugration without copying it
 + (RLMRealmConfiguration *)rawDefaultConfiguration;
 
